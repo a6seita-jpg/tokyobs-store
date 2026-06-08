@@ -5,7 +5,8 @@ import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { triggerRipple } from "@/lib/ripple";
 
-const NAV = [
+type NavItem = { to: string; label: string; guarded?: boolean };
+const NAV: NavItem[] = [
   { to: "/", label: "Início" },
   { to: "/ps4", label: "PS4", guarded: true },
   { to: "/ps5", label: "PS5" },
@@ -14,7 +15,7 @@ const NAV = [
   { to: "/variados", label: "Variados" },
   { to: "/acessorios", label: "Acessórios" },
   { to: "/sobre", label: "Sobre Nós" },
-] as const;
+];
 
 export function Header() {
   const { theme, toggle } = useTheme();
