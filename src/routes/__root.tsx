@@ -16,6 +16,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LoginModal } from "@/components/LoginModal";
+import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 
 function NotFoundComponent() {
   return (
@@ -124,6 +125,7 @@ function RootComponent() {
             </div>
             <Footer />
             <LoginModal />
+            <FloatingWhatsApp />
           </div>
         </AuthProvider>
       </ThemeProvider>

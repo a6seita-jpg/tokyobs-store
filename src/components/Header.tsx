@@ -14,6 +14,7 @@ const NAV: NavItem[] = [
   { to: "/roblox", label: "Roblox" },
   { to: "/variados", label: "Variados" },
   { to: "/acessorios", label: "Acessórios" },
+  { to: "/como-funciona", label: "Como funciona" },
   { to: "/sobre", label: "Sobre Nós" },
 ];
 
