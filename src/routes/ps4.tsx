@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ProductCard } from "@/components/ProductCard";
 import { triggerRipple } from "@/lib/ripple";
@@ -28,6 +28,7 @@ const GAMES = [
 function Ps4Page() {
   const { user, requireAuth } = useAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   // Route guard
   useEffect(() => {
@@ -36,6 +37,11 @@ function Ps4Page() {
       if (!ok) navigate({ to: "/" });
     }
   }, [user, navigate, requireAuth]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <main className="container-tk pt-28 pb-12 ink-wash-enter">
@@ -87,9 +93,17 @@ function Ps4Page() {
           <h3 className="text-xl font-light">Alguns títulos</h3>
           <span className="text-xs tracking-widest uppercase text-muted-foreground">Vitrine</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-          {GAMES.map((g) => <ProductCard key={g} name={g} />)}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="aspect-square rounded-lg bg-muted animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {GAMES.map((g) => <ProductCard key={g} name={g} />)}
+          </div>
+        )}
         <p className="mt-8 text-center text-muted-foreground">
           + <span className="text-primary font-medium">149 títulos</span> disponíveis no catálogo completo
         </p>
