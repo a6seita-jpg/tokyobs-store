@@ -16,6 +16,7 @@ import { Route as RobloxRouteImport } from './routes/roblox'
 import { Route as Ps5RouteImport } from './routes/ps5'
 import { Route as Ps4RouteImport } from './routes/ps4'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as ComoFuncionaRouteImport } from './routes/como-funciona'
 import { Route as AcessoriosRouteImport } from './routes/acessorios'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -54,6 +55,11 @@ const PerfilRoute = PerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ComoFuncionaRoute = ComoFuncionaRouteImport.update({
+  id: '/como-funciona',
+  path: '/como-funciona',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AcessoriosRoute = AcessoriosRouteImport.update({
   id: '/acessorios',
   path: '/acessorios',
@@ -68,6 +74,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/acessorios': typeof AcessoriosRoute
+  '/como-funciona': typeof ComoFuncionaRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
   '/ps5': typeof Ps5Route
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/acessorios': typeof AcessoriosRoute
+  '/como-funciona': typeof ComoFuncionaRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
   '/ps5': typeof Ps5Route
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/acessorios': typeof AcessoriosRoute
+  '/como-funciona': typeof ComoFuncionaRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
   '/ps5': typeof Ps5Route
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/acessorios'
+    | '/como-funciona'
     | '/perfil'
     | '/ps4'
     | '/ps5'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/acessorios'
+    | '/como-funciona'
     | '/perfil'
     | '/ps4'
     | '/ps5'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/acessorios'
+    | '/como-funciona'
     | '/perfil'
     | '/ps4'
     | '/ps5'
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AcessoriosRoute: typeof AcessoriosRoute
+  ComoFuncionaRoute: typeof ComoFuncionaRoute
   PerfilRoute: typeof PerfilRoute
   Ps4Route: typeof Ps4Route
   Ps5Route: typeof Ps5Route
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PerfilRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/como-funciona': {
+      id: '/como-funciona'
+      path: '/como-funciona'
+      fullPath: '/como-funciona'
+      preLoaderRoute: typeof ComoFuncionaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/acessorios': {
       id: '/acessorios'
       path: '/acessorios'
@@ -218,6 +238,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AcessoriosRoute: AcessoriosRoute,
+  ComoFuncionaRoute: ComoFuncionaRoute,
   PerfilRoute: PerfilRoute,
   Ps4Route: Ps4Route,
   Ps5Route: Ps5Route,

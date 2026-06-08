@@ -6,10 +6,12 @@ export type TKUser = {
   avatar: string;
 };
 
+type StoredUser = TKUser & { password: string };
+
 type AuthCtx = {
   user: TKUser | null;
-  login: (u: TKUser & { password: string }) => void;
-  register: (u: TKUser & { password: string }) => void;
+  login: (u: { email: string; password: string }) => { ok: boolean; error?: string };
+  register: (u: StoredUser) => { ok: boolean; error?: string };
   logout: () => void;
   updateProfile: (patch: Partial<TKUser>) => void;
   openLogin: () => void;
@@ -17,9 +19,26 @@ type AuthCtx = {
   isLoginOpen: boolean;
   loginMessage: string;
   requireAuth: (message?: string) => boolean;
+  resetPassword: (email: string) => { ok: boolean; error?: string };
 };
 
 const AuthContext = createContext<AuthCtx>(null as never);
+
+const USERS_KEY = "tk-users";
+const SESSION_KEY = "tk-user";
+
+function readUsers(): StoredUser[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function writeUsers(users: StoredUser[]) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<TKUser | null>(null);
@@ -28,49 +47,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const raw = localStorage.getItem("tk-user");
+    const raw = localStorage.getItem(SESSION_KEY);
     if (raw) {
       try { setUser(JSON.parse(raw)); } catch { /* noop */ }
     }
   }, []);
 
-  const persist = (u: TKUser | null) => {
+  const persistSession = (u: TKUser | null) => {
     setUser(u);
-    if (u) localStorage.setItem("tk-user", JSON.stringify(u));
-    else localStorage.removeItem("tk-user");
+    if (u) localStorage.setItem(SESSION_KEY, JSON.stringify(u));
+    else localStorage.removeItem(SESSION_KEY);
   };
 
-  const register = (u: TKUser & { password: string }) => {
-    // Persist credential map for "login" check (toy localStorage auth)
-    const creds = JSON.parse(localStorage.getItem("tk-creds") || "{}");
-    creds[u.email] = { password: u.password, nickname: u.nickname, avatar: u.avatar };
-    localStorage.setItem("tk-creds", JSON.stringify(creds));
-    persist({ email: u.email, nickname: u.nickname, avatar: u.avatar });
-  };
-
-  const login = (u: TKUser & { password: string }) => {
-    const creds = JSON.parse(localStorage.getItem("tk-creds") || "{}");
-    const record = creds[u.email];
-    if (record && record.password === u.password) {
-      persist({ email: u.email, nickname: record.nickname, avatar: record.avatar });
-    } else {
-      // First-time login fallback: register on the fly
-      register(u);
+  const register: AuthCtx["register"] = (u) => {
+    const users = readUsers();
+    if (users.some((x) => x.email.toLowerCase() === u.email.toLowerCase())) {
+      return { ok: false, error: "Email já cadastrado. Faça login" };
     }
+    users.push(u);
+    writeUsers(users);
+    persistSession({ email: u.email, nickname: u.nickname, avatar: u.avatar });
+    return { ok: true };
   };
 
-  const logout = () => persist(null);
+  const login: AuthCtx["login"] = ({ email, password }) => {
+    const users = readUsers();
+    const record = users.find((x) => x.email.toLowerCase() === email.toLowerCase());
+    if (!record) return { ok: false, error: "Email não cadastrado. Crie uma conta" };
+    if (record.password !== password) return { ok: false, error: "Senha incorreta" };
+    persistSession({ email: record.email, nickname: record.nickname, avatar: record.avatar });
+    return { ok: true };
+  };
+
+  const logout = () => persistSession(null);
 
   const updateProfile = (patch: Partial<TKUser>) => {
     if (!user) return;
     const next = { ...user, ...patch };
-    persist(next);
-    // Update creds record too
-    const creds = JSON.parse(localStorage.getItem("tk-creds") || "{}");
-    if (creds[next.email]) {
-      creds[next.email] = { ...creds[next.email], nickname: next.nickname, avatar: next.avatar };
-      localStorage.setItem("tk-creds", JSON.stringify(creds));
+    persistSession(next);
+    const users = readUsers();
+    const idx = users.findIndex((x) => x.email.toLowerCase() === next.email.toLowerCase());
+    if (idx >= 0) {
+      users[idx] = { ...users[idx], nickname: next.nickname, avatar: next.avatar };
+      writeUsers(users);
     }
+  };
+
+  const resetPassword: AuthCtx["resetPassword"] = (email) => {
+    const users = readUsers();
+    const idx = users.findIndex((x) => x.email.toLowerCase() === email.toLowerCase());
+    if (idx < 0) return { ok: false, error: "Email não encontrado" };
+    users[idx].password = "123456";
+    writeUsers(users);
+    return { ok: true };
   };
 
   const openLogin = () => { setLoginMessage(""); setLoginOpen(true); };
@@ -84,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, openLogin, closeLogin, isLoginOpen, loginMessage, requireAuth }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, openLogin, closeLogin, isLoginOpen, loginMessage, requireAuth, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );

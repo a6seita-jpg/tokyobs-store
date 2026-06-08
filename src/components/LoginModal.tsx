@@ -4,25 +4,45 @@ import { useAuth } from "@/hooks/useAuth";
 import { triggerRipple } from "@/lib/ripple";
 
 export function LoginModal() {
-  const { isLoginOpen, closeLogin, login, register, loginMessage } = useAuth();
+  const { isLoginOpen, closeLogin, login, register, resetPassword, loginMessage } = useAuth();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [form, setForm] = useState({ email: "", password: "", nickname: "", avatar: "" });
+  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
 
   if (!isLoginOpen) return null;
 
+  const reset = () => {
+    setForm({ email: "", password: "", nickname: "", avatar: "" });
+    setError("");
+    setInfo("");
+  };
+
+  const close = () => { reset(); closeLogin(); };
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (mode === "login") {
-      login(form);
-    } else {
-      register(form);
+    setError(""); setInfo("");
+    const res = mode === "login"
+      ? login({ email: form.email, password: form.password })
+      : register(form);
+    if (!res.ok) {
+      setError(res.error || "Erro ao processar");
+      return;
     }
-    closeLogin();
-    setForm({ email: "", password: "", nickname: "", avatar: "" });
+    close();
+  };
+
+  const onForgot = () => {
+    setError(""); setInfo("");
+    if (!form.email) { setError("Digite seu email primeiro"); return; }
+    const res = resetPassword(form.email);
+    if (!res.ok) { setError(res.error || "Erro"); return; }
+    setInfo("Senha resetada para: 123456");
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm p-4 ink-wash-enter" onClick={closeLogin}>
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm p-4 ink-wash-enter" onClick={close}>
       <div
         className="relative w-full max-w-md rounded-lg bg-card border border-border p-6 sm:p-8"
         onClick={(e) => e.stopPropagation()}
@@ -30,7 +50,7 @@ export function LoginModal() {
         <button
           aria-label="Fechar"
           className="absolute top-3 right-3 h-8 w-8 grid place-items-center rounded-full hover:bg-muted"
-          onClick={closeLogin}
+          onClick={close}
         >
           <X className="h-4 w-4" />
         </button>
@@ -43,7 +63,7 @@ export function LoginModal() {
           <h2 className="mt-2 text-2xl font-light">
             {mode === "login" ? "Entrar" : "Criar conta"}
           </h2>
-          {loginMessage && (
+          {loginMessage && !error && (
             <p className="mt-2 text-sm text-primary">{loginMessage}</p>
           )}
         </div>
@@ -64,6 +84,13 @@ export function LoginModal() {
             </>
           )}
 
+          {error && (
+            <p className="text-sm text-primary bg-primary/10 rounded-md px-3 py-2">{error}</p>
+          )}
+          {info && (
+            <p className="text-sm text-green-600 bg-green-500/10 rounded-md px-3 py-2">{info}</p>
+          )}
+
           <button
             type="submit"
             onClick={triggerRipple}
@@ -73,11 +100,21 @@ export function LoginModal() {
           </button>
         </form>
 
+        {mode === "login" && (
+          <button
+            type="button"
+            onClick={onForgot}
+            className="mt-3 w-full text-center text-xs text-muted-foreground hover:text-primary transition"
+          >
+            Esqueci minha senha
+          </button>
+        )}
+
         <p className="mt-4 text-center text-sm text-muted-foreground">
           {mode === "login" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
           <button
             className="text-primary hover:underline"
-            onClick={() => setMode(mode === "login" ? "register" : "login")}
+            onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); setInfo(""); }}
           >
             {mode === "login" ? "Cadastre-se" : "Entrar"}
           </button>
