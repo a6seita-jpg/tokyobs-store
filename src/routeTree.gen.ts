@@ -9,8 +9,56 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VariadosRouteImport } from './routes/variados'
+import { Route as StreamingRouteImport } from './routes/streaming'
+import { Route as SobreRouteImport } from './routes/sobre'
+import { Route as RobloxRouteImport } from './routes/roblox'
+import { Route as Ps5RouteImport } from './routes/ps5'
+import { Route as Ps4RouteImport } from './routes/ps4'
+import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as AcessoriosRouteImport } from './routes/acessorios'
 import { Route as IndexRouteImport } from './routes/index'
 
+const VariadosRoute = VariadosRouteImport.update({
+  id: '/variados',
+  path: '/variados',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StreamingRoute = StreamingRouteImport.update({
+  id: '/streaming',
+  path: '/streaming',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobloxRoute = RobloxRouteImport.update({
+  id: '/roblox',
+  path: '/roblox',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Ps5Route = Ps5RouteImport.update({
+  id: '/ps5',
+  path: '/ps5',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Ps4Route = Ps4RouteImport.update({
+  id: '/ps4',
+  path: '/ps4',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcessoriosRoute = AcessoriosRouteImport.update({
+  id: '/acessorios',
+  path: '/acessorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +67,144 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/acessorios': typeof AcessoriosRoute
+  '/perfil': typeof PerfilRoute
+  '/ps4': typeof Ps4Route
+  '/ps5': typeof Ps5Route
+  '/roblox': typeof RobloxRoute
+  '/sobre': typeof SobreRoute
+  '/streaming': typeof StreamingRoute
+  '/variados': typeof VariadosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/acessorios': typeof AcessoriosRoute
+  '/perfil': typeof PerfilRoute
+  '/ps4': typeof Ps4Route
+  '/ps5': typeof Ps5Route
+  '/roblox': typeof RobloxRoute
+  '/sobre': typeof SobreRoute
+  '/streaming': typeof StreamingRoute
+  '/variados': typeof VariadosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/acessorios': typeof AcessoriosRoute
+  '/perfil': typeof PerfilRoute
+  '/ps4': typeof Ps4Route
+  '/ps5': typeof Ps5Route
+  '/roblox': typeof RobloxRoute
+  '/sobre': typeof SobreRoute
+  '/streaming': typeof StreamingRoute
+  '/variados': typeof VariadosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/acessorios'
+    | '/perfil'
+    | '/ps4'
+    | '/ps5'
+    | '/roblox'
+    | '/sobre'
+    | '/streaming'
+    | '/variados'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/acessorios'
+    | '/perfil'
+    | '/ps4'
+    | '/ps5'
+    | '/roblox'
+    | '/sobre'
+    | '/streaming'
+    | '/variados'
+  id:
+    | '__root__'
+    | '/'
+    | '/acessorios'
+    | '/perfil'
+    | '/ps4'
+    | '/ps5'
+    | '/roblox'
+    | '/sobre'
+    | '/streaming'
+    | '/variados'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AcessoriosRoute: typeof AcessoriosRoute
+  PerfilRoute: typeof PerfilRoute
+  Ps4Route: typeof Ps4Route
+  Ps5Route: typeof Ps5Route
+  RobloxRoute: typeof RobloxRoute
+  SobreRoute: typeof SobreRoute
+  StreamingRoute: typeof StreamingRoute
+  VariadosRoute: typeof VariadosRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/variados': {
+      id: '/variados'
+      path: '/variados'
+      fullPath: '/variados'
+      preLoaderRoute: typeof VariadosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/streaming': {
+      id: '/streaming'
+      path: '/streaming'
+      fullPath: '/streaming'
+      preLoaderRoute: typeof StreamingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roblox': {
+      id: '/roblox'
+      path: '/roblox'
+      fullPath: '/roblox'
+      preLoaderRoute: typeof RobloxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ps5': {
+      id: '/ps5'
+      path: '/ps5'
+      fullPath: '/ps5'
+      preLoaderRoute: typeof Ps5RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ps4': {
+      id: '/ps4'
+      path: '/ps4'
+      fullPath: '/ps4'
+      preLoaderRoute: typeof Ps4RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/acessorios': {
+      id: '/acessorios'
+      path: '/acessorios'
+      fullPath: '/acessorios'
+      preLoaderRoute: typeof AcessoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,7 +217,25 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AcessoriosRoute: AcessoriosRoute,
+  PerfilRoute: PerfilRoute,
+  Ps4Route: Ps4Route,
+  Ps5Route: Ps5Route,
+  RobloxRoute: RobloxRoute,
+  SobreRoute: SobreRoute,
+  StreamingRoute: StreamingRoute,
+  VariadosRoute: VariadosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
