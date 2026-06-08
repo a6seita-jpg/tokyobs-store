@@ -35,7 +35,7 @@ export function Header() {
           {NAV.map((item) => (
             <Link
               key={item.to}
-              to={item.to}
+              to={item.to as never}
               onClick={(e) => {
                 if (item.guarded && !requireAuth("Faça login pra consultar")) {
                   e.preventDefault();
@@ -103,7 +103,7 @@ export function Header() {
             {NAV.map((item) => (
               <Link
                 key={item.to}
-                to={item.to}
+                to={item.to as never}
                 onClick={(e) => {
                   if (item.guarded && !requireAuth("Faça login pra consultar")) {
                     e.preventDefault();
