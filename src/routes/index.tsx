@@ -25,8 +25,8 @@ export const Route = createFileRoute("/")({
 
 const CATEGORIES = [
   { to: "/ps4", label: "PS4", image: catPs4, guarded: true },
-  { to: "/ps5", label: "PS5", image: catPs5 },
-  { to: "/streaming", label: "Streaming", image: catStreaming },
+  { to: "/ps5", label: "Epic Games", image: catPs5 },
+  { to: "/streaming", label: "Assinaturas", image: catStreaming },
   { to: "/roblox", label: "Roblox", image: catRoblox },
   { to: "/variados", label: "Variados", image: catVariados },
   { to: "/acessorios", label: "Acessórios", image: catAcessorios },
