@@ -1,4 +1,4 @@
-// Builds WhatsApp deep links for product inquiries.
+// Builds WhatsApp deep links for product inquiries and purchases.
 const PHONE = "5573988810368";
 
 export function whatsappUrl(category: string, extra = "") {
@@ -9,3 +9,17 @@ export function whatsappUrl(category: string, extra = "") {
   const msg = `${base}${tail}${extra ? `: ${extra}` : ":"}`;
   return `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
 }
+
+// Purchase intent: builds the standardized message with product + variation + qty + total.
+export function purchaseUrl(opts: {
+  product: string;
+  variation: string;
+  quantity: number;
+  total: number;
+}) {
+  const total = opts.total.toFixed(2).replace(".", ",");
+  const msg = `Olá TOKYOBS! Quero comprar: ${opts.product} - ${opts.variation} x${opts.quantity} = R$ ${total}`;
+  return `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
+}
+
+export const TOKYOBS_PHONE = PHONE;
