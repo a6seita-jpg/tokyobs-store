@@ -17,6 +17,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LoginModal } from "@/components/LoginModal";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
+import { CornerDragons } from "@/components/CornerDragons";
 
 function NotFoundComponent() {
   return (
@@ -126,6 +127,7 @@ function RootComponent() {
             <Footer />
             <LoginModal />
             <FloatingWhatsApp />
+            <CornerDragons />
           </div>
         </AuthProvider>
       </ThemeProvider>
