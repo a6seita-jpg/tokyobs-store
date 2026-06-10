@@ -108,8 +108,16 @@
   }
 
   h1, h2, h3, h4 {
-    font-weight: 300;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  button, a {
+    transition: transform 0.15s ease-out;
+  }
+  button:active, a:active {
+    transform: scale(0.98);
   }
 }
 
