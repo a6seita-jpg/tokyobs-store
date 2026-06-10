@@ -1,6 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import { ProductCard } from "@/components/ProductCard";
 import { triggerRipple } from "@/lib/ripple";
 import { whatsappUrl } from "@/lib/whatsapp";
@@ -10,9 +9,9 @@ export const Route = createFileRoute("/ps4")({
   head: () => ({
     meta: [
       { title: "TOKYOBS — PS4 · Catálogo sob consulta" },
-      { name: "description", content: "Catálogo PS4 com 161+ títulos. Mídia digital imediata. Consulte disponibilidade pelo WhatsApp." },
+      { name: "description", content: "Catálogo PS4 com 161+ títulos. Mídia digital imediata." },
       { property: "og:title", content: "TOKYOBS PS4 — Catálogo sob consulta" },
-      { property: "og:description", content: "161+ títulos PS4 em mídia digital. Membro TOKYOBS tem prioridade." },
+      { property: "og:description", content: "161+ títulos PS4 em mídia digital." },
       { property: "og:image", content: ps4Hero },
     ],
   }),
@@ -26,18 +25,7 @@ const GAMES = [
 ];
 
 function Ps4Page() {
-  const { user, requireAuth } = useAuth();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-
-  // Route guard
-  useEffect(() => {
-    if (!user) {
-      const ok = requireAuth("Faça login pra consultar");
-      if (!ok) navigate({ to: "/" });
-    }
-  }, [user, navigate, requireAuth]);
-
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(t);
@@ -52,8 +40,7 @@ function Ps4Page() {
         <h1 className="mt-3 text-4xl sm:text-5xl font-extralight">Catálogo PS4</h1>
       </div>
 
-      {/* Featured "Catálogo sob consulta" card */}
-      <article className="max-w-3xl mx-auto rounded-lg overflow-hidden border border-border bg-card">
+      <article className="max-w-3xl mx-auto rounded-lg overflow-hidden border border-border bg-card fade-up stagger-1">
         <div className="grid md:grid-cols-2">
           <div className="aspect-square md:aspect-auto bg-muted overflow-hidden">
             <img src={ps4Hero} alt="DualShock 4 e torii" className="h-full w-full object-cover" />
@@ -87,7 +74,6 @@ function Ps4Page() {
         </div>
       </article>
 
-      {/* Showcase grid */}
       <section className="mt-16">
         <div className="flex items-end justify-between mb-6">
           <h3 className="text-xl font-light">Alguns títulos</h3>

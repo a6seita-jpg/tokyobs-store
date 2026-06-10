@@ -1,27 +1,18 @@
 import { Link } from "@tanstack/react-router";
 import { triggerRipple } from "@/lib/ripple";
-import { useAuth } from "@/hooks/useAuth";
 
 type Props = {
   to: string;
   label: string;
   image: string;
-  guarded?: boolean;
 };
 
-export function CategoryCard({ to, label, image, guarded }: Props) {
-  const { requireAuth } = useAuth();
-
+export function CategoryCard({ to, label, image }: Props) {
   return (
     <Link
       to={to}
-      onClick={(e) => {
-        triggerRipple(e);
-        if (guarded && !requireAuth("Faça login pra consultar")) {
-          e.preventDefault();
-        }
-      }}
-      className="ripple-host group relative aspect-square overflow-hidden rounded-md border border-border bg-card transition-transform duration-500 hover:-translate-y-1 hover:border-primary/60"
+      onClick={triggerRipple}
+      className="ripple-host group relative aspect-square overflow-hidden rounded-md border border-border bg-card category-hover"
     >
       <img
         src={image}
