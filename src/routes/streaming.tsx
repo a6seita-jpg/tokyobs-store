@@ -171,7 +171,7 @@ const PRODUCTS: Product[] = [
     intro: "Spotify Premium",
     variants: [
       { label: "Link 3 meses", price: 11.0, description: ["Spotify Premium 3 meses via link", "Sem login na sua conta", "Música offline", "Sem anúncios"] },
-      { label: "50 links 3 meses", price: 17.990000000000002, description: ["Pacote 50 contas Spotify 3 meses", "Ideal para revenda", "Sem login compartilhado", "Entrega imediata"] },
+      { label: "50 links 3 meses", price: 17.99, description: ["Pacote 50 contas Spotify 3 meses", "Ideal para revenda", "Sem login compartilhado", "Entrega imediata"] },
     ],
   },
 ];
