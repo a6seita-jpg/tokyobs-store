@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { triggerRipple } from "@/lib/ripple";
 import { whatsappUrl } from "@/lib/whatsapp";
-import ps4Hero from "@/assets/ps4-hero.jpg";
+import ps4Hero from "@/assets/banners/ps4.jpg";
 
 export const Route = createFileRoute("/ps4")({
   head: () => ({
