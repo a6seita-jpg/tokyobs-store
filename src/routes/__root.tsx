@@ -13,11 +13,14 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CartProvider } from "@/hooks/useCart";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LoginModal } from "@/components/LoginModal";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { CornerDragons } from "@/components/CornerDragons";
+import { EntryGate } from "@/components/EntryGate";
+import { CartDrawer } from "@/components/CartDrawer";
 
 function NotFoundComponent() {
   return (
@@ -72,15 +75,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "TOKYOBS — O que você procura, a gente tem" },
-      { name: "description", content: "Loja de variedades TOKYOBS. PS4, PS5, Streaming, Roblox, Acessórios e muito mais. Atendimento humano via WhatsApp." },
+      { name: "description", content: "Loja de variedades TOKYOBS. PS4, Epic Games, Assinaturas e muito mais. Atendimento humano via WhatsApp." },
       { property: "og:title", content: "TOKYOBS — O que você procura, a gente tem" },
-      { property: "og:description", content: "Loja de variedades TOKYOBS. PS4, PS5, Streaming, Roblox, Acessórios e muito mais. Atendimento humano via WhatsApp." },
+      { property: "og:description", content: "Loja de variedades TOKYOBS. Atendimento humano via WhatsApp." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "TOKYOBS — O que você procura, a gente tem" },
-      { name: "twitter:description", content: "Loja de variedades TOKYOBS. PS4, PS5, Streaming, Roblox, Acessórios e muito mais. Atendimento humano via WhatsApp." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/403e0b7a-bc75-4473-80db-bc2acf107500/id-preview-711ade30--f715630f-d309-4f56-8485-5490e2b4505c.lovable.app-1780937606255.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/403e0b7a-bc75-4473-80db-bc2acf107500/id-preview-711ade30--f715630f-d309-4f56-8485-5490e2b4505c.lovable.app-1780937606255.png" },
+      { name: "twitter:description", content: "Loja de variedades TOKYOBS. Atendimento humano via WhatsApp." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -88,7 +89,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=Noto+Sans+JP:wght@200;300;400;500&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=Noto+Sans+JP:wght@200;300;400;500;700&display=swap",
       },
     ],
   }),
@@ -119,16 +120,21 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <div className="flex-1 pt-16">
-              <Outlet />
-            </div>
-            <Footer />
-            <LoginModal />
-            <FloatingWhatsApp />
-            <CornerDragons />
-          </div>
+          <CartProvider>
+            <EntryGate>
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <div className="flex-1 pt-16">
+                  <Outlet />
+                </div>
+                <Footer />
+                <LoginModal />
+                <CartDrawer />
+                <FloatingWhatsApp />
+                <CornerDragons />
+              </div>
+            </EntryGate>
+          </CartProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
