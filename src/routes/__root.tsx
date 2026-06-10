@@ -123,7 +123,7 @@ function RootComponent() {
         <AuthProvider>
           <CartProvider>
             <EntryGate>
-              <div className="min-h-screen flex flex-col">
+              <div className="min-h-screen flex flex-col tk-bg">
                 <Header />
                 <div className="flex-1 pt-16">
                   <Outlet />
@@ -133,6 +133,7 @@ function RootComponent() {
                 <CartDrawer />
                 <FloatingWhatsApp />
                 <CornerDragons />
+                <Toaster position="top-right" theme="dark" toastOptions={{ style: { background: "#141414", border: "1px solid #2a2a2a", color: "#fff" } }} />
               </div>
             </EntryGate>
           </CartProvider>
