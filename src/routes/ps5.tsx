@@ -4,8 +4,9 @@ import { MessageCircle, ShoppingCart, Check } from "lucide-react";
 import { triggerRipple } from "@/lib/ripple";
 import { purchaseUrl, whatsappUrl } from "@/lib/whatsapp";
 import { QuantitySelector } from "@/components/QuantitySelector";
+import { StockListPicker, type StockGroup } from "@/components/StockListPicker";
 import { useCart } from "@/hooks/useCart";
-import img from "@/assets/cat-ps5.jpg";
+import img from "@/assets/banners/epic.jpg";
 
 export const Route = createFileRoute("/ps5")({
   head: () => ({
@@ -55,21 +56,36 @@ const GAMES: Game[] = [
   { name: "The Outer Worlds Spacers", price: 9 },
 ].sort((a, b) => a.name.localeCompare(b.name));
 
+const GROUPS: StockGroup[] = [
+  {
+    title: "Jogos disponíveis",
+    items: GAMES.map((g) => ({
+      id: g.name,
+      label: g.name,
+      price: g.price,
+      stock: 99,
+    })),
+  },
+];
+
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace(".", ",")}`;
 
 function EpicGamesPage() {
-  const [selected, setSelected] = useState<string>(GAMES[0].name);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
 
-  const game = useMemo(() => GAMES.find((g) => g.name === selected) ?? GAMES[0], [selected]);
-  const total = game.price * qty;
-  const variation = `${game.name} (Full Acesso + Email)`;
+  const game = useMemo(() => GAMES.find((g) => g.name === selectedId) ?? null, [selectedId]);
+  const total = game ? game.price * qty : 0;
+  const variation = game ? `${game.name} (Full Acesso + Email)` : "";
 
-  const href = purchaseUrl({ product: "Epic Games", variation, quantity: qty, total });
+  const href = game
+    ? purchaseUrl({ product: "Epic Games", variation, quantity: qty, total })
+    : "#";
 
   const handleAdd = () => {
+    if (!game) return;
     addItem({
       product: "Epic Games",
       variation,
@@ -101,54 +117,54 @@ function EpicGamesPage() {
           <label className="text-xs uppercase tracking-[0.25em] text-muted-foreground fade-up stagger-2">
             Selecione o jogo
           </label>
-          <select
-            value={selected}
-            onChange={(e) => setSelected(e.target.value)}
-            className="w-full h-12 px-3 rounded-md border border-input bg-background text-foreground focus:border-primary outline-none fade-up stagger-2"
-          >
-            {GAMES.map((g) => (
-              <option key={g.name} value={g.name}>
-                {g.name} — {fmt(g.price)}
-              </option>
-            ))}
-          </select>
+          <div className="fade-up stagger-2">
+            <StockListPicker
+              groups={GROUPS}
+              value={selectedId}
+              onChange={(id) => { setSelectedId(id); setQty(1); }}
+            />
+          </div>
 
           <p className="text-sm text-muted-foreground leading-relaxed fade-up stagger-3">
             ⚠ Conta com e-mail. Você pode trocar o e-mail após 30/90 dias. Entrega até 24h.
             Não encontrou o jogo? Consulte outros títulos no WhatsApp
           </p>
 
-          <div className="flex items-center justify-between gap-4 pt-2 fade-up stagger-4">
-            <QuantitySelector value={qty} onChange={setQty} />
-            <div className="text-right">
-              <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Total</div>
-              <div key={total} className="text-2xl font-light text-primary price-flash">{fmt(total)}</div>
-            </div>
-          </div>
+          {game && (
+            <>
+              <div className="flex items-center justify-between gap-4 pt-2 fade-up stagger-4">
+                <QuantitySelector value={qty} onChange={setQty} />
+                <div className="text-right">
+                  <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Total</div>
+                  <div key={total} className="text-2xl font-light text-primary price-flash">{fmt(total)}</div>
+                </div>
+              </div>
 
-          <a
-            href={href}
-            target="_blank"
-            rel="noreferrer"
-            onClick={triggerRipple}
-            className="ripple-host inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition fade-up stagger-5"
-          >
-            <MessageCircle className="h-4 w-4" />
-            Comprar via WhatsApp
-          </a>
+              <a
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                onClick={triggerRipple}
+                className="ripple-host inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition fade-up stagger-5"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Comprar via WhatsApp
+              </a>
 
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full border transition fade-up stagger-5"
-            style={{
-              background: added ? "#e63946" : "#0a0a0a",
-              color: "#fff",
-              borderColor: "#e63946",
-            }}
-          >
-            {added ? (<><Check className="h-4 w-4" /> Adicionado</>) : (<><ShoppingCart className="h-4 w-4" /> Adicionar ao Carrinho</>)}
-          </button>
+              <button
+                type="button"
+                onClick={handleAdd}
+                className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full border transition fade-up stagger-5"
+                style={{
+                  background: added ? "#e63946" : "#0a0a0a",
+                  color: "#fff",
+                  borderColor: "#e63946",
+                }}
+              >
+                {added ? (<><Check className="h-4 w-4" /> Adicionado</>) : (<><ShoppingCart className="h-4 w-4" /> Adicionar ao Carrinho</>)}
+              </button>
+            </>
+          )}
 
           <a
             href={whatsappUrl("Epic Games")}

@@ -4,11 +4,11 @@ import { CategoryCard } from "@/components/CategoryCard";
 import { SearchBar } from "@/components/SearchBar";
 import { FaqSection } from "@/components/FaqSection";
 import { GridSkeleton } from "@/components/Skeleton";
-import catPs4 from "@/assets/cat-ps4.jpg";
-import catPs5 from "@/assets/cat-ps5.jpg";
-import catStreaming from "@/assets/cat-streaming.jpg";
-import catSteam from "@/assets/cat-ps5.jpg";
-import catRedes from "@/assets/cat-acessorios.jpg";
+import catPs4 from "@/assets/banners/ps4.jpg";
+import catEpic from "@/assets/banners/epic.jpg";
+import catStreaming from "@/assets/banners/netflix.jpg";
+import catSteam from "@/assets/banners/steam.jpg";
+import catRedes from "@/assets/banners/redes-sociais.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
 
 const CATEGORIES = [
   { to: "/ps4", label: "PS4", image: catPs4, guarded: true },
-  { to: "/ps5", label: "Epic Games", image: catPs5 },
+  { to: "/ps5", label: "Epic Games", image: catEpic },
   { to: "/streaming", label: "Assinaturas", image: catStreaming },
   { to: "/steam", label: "Steam", image: catSteam },
   { to: "/redes-sociais", label: "Redes Sociais", image: catRedes },
