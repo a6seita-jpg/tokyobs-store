@@ -3,8 +3,12 @@ import { X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { triggerRipple } from "@/lib/ripple";
 
+/**
+ * Optional login modal triggered from header / requireAuth.
+ * The mandatory entry gate lives in EntryGate.tsx.
+ */
 export function LoginModal() {
-  const { isLoginOpen, closeLogin, login, register, resetPassword, loginMessage } = useAuth();
+  const { isLoginOpen, closeLogin, login, register, resetPassword, loginAsGuest, loginMessage } = useAuth();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [form, setForm] = useState({ email: "", password: "", nickname: "", avatar: "" });
   const [error, setError] = useState("");
@@ -26,10 +30,7 @@ export function LoginModal() {
     const res = mode === "login"
       ? login({ email: form.email, password: form.password })
       : register(form);
-    if (!res.ok) {
-      setError(res.error || "Erro ao processar");
-      return;
-    }
+    if (!res.ok) { setError(res.error || "Erro ao processar"); return; }
     close();
   };
 
@@ -42,7 +43,7 @@ export function LoginModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm p-4 ink-wash-enter" onClick={close}>
+    <div className="fixed inset-0 z-[80] grid place-items-center bg-black/60 backdrop-blur-sm p-4 ink-wash-enter" onClick={close}>
       <div
         className="relative w-full max-w-md rounded-lg bg-card border border-border p-6 sm:p-8"
         onClick={(e) => e.stopPropagation()}
@@ -75,13 +76,8 @@ export function LoginModal() {
             onChange={(v) => setForm({ ...form, password: v })} />
 
           {mode === "register" && (
-            <>
-              <Field label="Nickname" required value={form.nickname}
-                onChange={(v) => setForm({ ...form, nickname: v })} />
-              <Field label="URL da foto de perfil" type="url" value={form.avatar}
-                placeholder="https://..."
-                onChange={(v) => setForm({ ...form, avatar: v })} />
-            </>
+            <Field label="Nickname" required value={form.nickname}
+              onChange={(v) => setForm({ ...form, nickname: v })} />
           )}
 
           {error && (
@@ -99,6 +95,21 @@ export function LoginModal() {
             {mode === "login" ? "Entrar" : "Cadastrar"}
           </button>
         </form>
+
+        <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="flex-1 h-px bg-border" />
+          ou
+          <span className="flex-1 h-px bg-border" />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => { loginAsGuest(); close(); }}
+          className="w-full h-11 rounded-full border transition hover:border-primary"
+          style={{ background: "transparent", borderColor: "#333", color: "#aaa" }}
+        >
+          Entrar como Guest
+        </button>
 
         {mode === "login" && (
           <button
