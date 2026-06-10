@@ -4,6 +4,7 @@ import { ArrowLeft, MessageCircle, ShoppingCart, Check } from "lucide-react";
 import { triggerRipple } from "@/lib/ripple";
 import { purchaseUrl } from "@/lib/whatsapp";
 import { QuantitySelector } from "@/components/QuantitySelector";
+import { StockListPicker, type StockGroup } from "@/components/StockListPicker";
 import { useCart } from "@/hooks/useCart";
 
 import crunchyrollLogo from "@/assets/logos/crunchyroll.jpg";
@@ -15,6 +16,16 @@ import huluLogo from "@/assets/logos/hulu.jpg";
 import chatgptLogo from "@/assets/logos/chatgpt.jpg";
 import xboxLogo from "@/assets/logos/xbox.jpg";
 import spotifyLogo from "@/assets/logos/spotify.jpg";
+
+import crunchyrollBanner from "@/assets/banners/crunchyroll.jpg";
+import youtubeBanner from "@/assets/banners/youtube.jpg";
+import netflixBanner from "@/assets/banners/netflix.jpg";
+import paramountBanner from "@/assets/banners/paramount.jpg";
+import huluBanner from "@/assets/banners/hulu.jpg";
+import chatgptBanner from "@/assets/banners/chatgpt.jpg";
+import xboxBanner from "@/assets/banners/xbox.jpg";
+import spotifyBanner from "@/assets/banners/spotify.jpg";
+import primeBanner from "@/assets/banners/prime.jpg";
 
 export const Route = createFileRoute("/streaming")({
   head: () => ({
@@ -32,6 +43,7 @@ type Product = {
   id: string;
   title: string;
   logo: string;
+  banner?: string;
   intro?: string;
   variants: Variant[];
 };
@@ -41,6 +53,7 @@ const PRODUCTS: Product[] = [
     id: "crunchyroll",
     title: "Crunchyroll Premium Mega Fan",
     logo: crunchyrollLogo,
+    banner: crunchyrollBanner,
     intro: "Acesso Premium Mega Fan",
     variants: [
       { label: "30 dias", price: 6.0, description: ["Full HD + 4K disponível", "Simulcast de lançamentos", "Sem anúncios", "Entrega até 2h via login"] },
@@ -51,6 +64,7 @@ const PRODUCTS: Product[] = [
     id: "youtube",
     title: "YouTube Premium + YouTube Music",
     logo: youtubeLogo,
+    banner: youtubeBanner,
     intro: "YouTube Premium + YouTube Music",
     variants: [
       { label: "30 dias via link e-mail", price: 8.9, description: ["Sem anúncios no YouTube", "Music offline e background", "Ativação via link, sem login na sua conta", "Ativação imediata"] },
@@ -71,6 +85,7 @@ const PRODUCTS: Product[] = [
     id: "netflix",
     title: "Netflix 4K Premium",
     logo: netflixLogo,
+    banner: netflixBanner,
     intro: "Netflix 4K Premium",
     variants: [
       { label: "30 dias", price: 9.99, description: ["4 telas simultâneas", "Ultra HD 4K + HDR", "Catálogo completo", "Entrega rápida"] },
@@ -80,6 +95,7 @@ const PRODUCTS: Product[] = [
     id: "netflix-shared",
     title: "Netflix Compartilhada",
     logo: netflixLogo,
+    banner: netflixBanner,
     intro: "Netflix Compartilhada — 1 tela HD",
     variants: [
       { label: "7 dias", price: 6.75, description: ["1 tela em HD", "Catálogo completo Netflix", "Tela individual reservada", "Entrega rápida"] },
@@ -90,6 +106,7 @@ const PRODUCTS: Product[] = [
     id: "paramount",
     title: "Paramount+",
     logo: paramountLogo,
+    banner: paramountBanner,
     intro: "Paramount+ Full Acesso",
     variants: [
       { label: "30 dias", price: 8.9, description: ["Séries originais + filmes", "Conteúdo CBS, MTV, Nickelodeon", "Full HD", "Entrega rápida"] },
@@ -101,6 +118,7 @@ const PRODUCTS: Product[] = [
     id: "prime",
     title: "Prime Video",
     logo: youtubeLogo,
+    banner: primeBanner,
     intro: "Prime Video Full Acesso",
     variants: [
       { label: "30 dias", price: 8.9, description: ["Filmes + Séries Amazon Original", "Full HD", "Multi-dispositivo", "Entrega rápida"] },
@@ -112,6 +130,7 @@ const PRODUCTS: Product[] = [
     id: "hulu",
     title: "Hulu + Star+ + ESPN",
     logo: huluLogo,
+    banner: huluBanner,
     intro: "Combo Hulu + Star+ + ESPN",
     variants: [
       { label: "30 dias", price: 7.9, description: ["Esportes ao vivo ESPN", "Séries Hulu + Star+", "Full HD", "Entrega rápida"] },
@@ -123,6 +142,7 @@ const PRODUCTS: Product[] = [
     id: "chatgpt",
     title: "ChatGPT 5.2 Plus",
     logo: chatgptLogo,
+    banner: chatgptBanner,
     intro: "ChatGPT 5.2 Plus",
     variants: [
       { label: "30 dias", price: 9.9, description: ["GPT-4o ilimitado", "Geração de imagens DALL-E 3", "Acesso prioritário", "30 dias full acesso"] },
@@ -133,6 +153,7 @@ const PRODUCTS: Product[] = [
     id: "gamepass",
     title: "GamePass Ultimate",
     logo: xboxLogo,
+    banner: xboxBanner,
     intro: "GamePass Ultimate",
     variants: [
       { label: "7 dias + brinde", price: 6.0, description: ["Catálogo Ultimate completo", "PC + Console + Cloud", "Brinde digital incluso", "Entrega rápida"] },
@@ -145,6 +166,7 @@ const PRODUCTS: Product[] = [
     id: "spotify",
     title: "Spotify Premium",
     logo: spotifyLogo,
+    banner: spotifyBanner,
     intro: "Spotify Premium",
     variants: [
       { label: "Link 3 meses", price: 6.0, description: ["Spotify Premium 3 meses via link", "Sem login na sua conta", "Música offline", "Sem anúncios"] },
@@ -173,12 +195,25 @@ function CategoryGridCard({ product, onClick }: { product: Product; onClick: () 
 }
 
 function ProductDetail({ product, onBack }: { product: Product; onBack: () => void }) {
-  const [vIdx, setVIdx] = useState<number | "">("");
+  const [vId, setVId] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
 
-  const variant = useMemo(() => (vIdx === "" ? null : product.variants[vIdx]), [vIdx, product]);
+  const groups: StockGroup[] = useMemo(() => [{
+    title: "Variações disponíveis",
+    items: product.variants.map((v) => ({
+      id: v.label,
+      label: v.label,
+      price: v.price,
+      stock: 99,
+    })),
+  }], [product]);
+
+  const variant = useMemo(
+    () => product.variants.find((v) => v.label === vId) ?? null,
+    [vId, product]
+  );
   const total = variant ? variant.price * qty : 0;
 
   const href = variant
@@ -214,10 +249,18 @@ function ProductDetail({ product, onBack }: { product: Product; onBack: () => vo
         </button>
       </div>
 
-      <div className="p-6 sm:p-10 flex flex-col items-center gap-6">
-        <div className="w-[120px] h-[120px] flex items-center justify-center rounded-md bg-[#0a0a0a] overflow-hidden fade-up stagger-1">
-          <img src={product.logo} alt={product.title} className="max-h-[100px] max-w-[100px] object-contain" />
+      {product.banner && (
+        <div className="aspect-[16/9] bg-muted overflow-hidden fade-up stagger-1">
+          <img src={product.banner} alt={product.title} className="h-full w-full object-cover" loading="lazy" />
         </div>
+      )}
+
+      <div className="p-6 sm:p-10 flex flex-col items-center gap-6">
+        {!product.banner && (
+          <div className="w-[120px] h-[120px] flex items-center justify-center rounded-md bg-[#0a0a0a] overflow-hidden fade-up stagger-1">
+            <img src={product.logo} alt={product.title} className="max-h-[100px] max-w-[100px] object-contain" />
+          </div>
+        )}
 
         <h1 className="text-2xl sm:text-3xl font-extralight text-center fade-up stagger-2">{product.title}</h1>
 
@@ -225,22 +268,13 @@ function ProductDetail({ product, onBack }: { product: Product; onBack: () => vo
           <label className="text-xs uppercase tracking-[0.25em] text-muted-foreground fade-up stagger-3">
             Selecione a variação
           </label>
-          <select
-            value={vIdx}
-            onChange={(e) => {
-              const v = e.target.value;
-              setVIdx(v === "" ? "" : Number(v));
-              setQty(1);
-            }}
-            className="w-full h-12 px-3 rounded-md border border-input bg-background text-foreground focus:border-primary outline-none fade-up stagger-3"
-          >
-            <option value="">— Escolha uma opção —</option>
-            {product.variants.map((v, i) => (
-              <option key={v.label} value={i}>
-                {v.label} — {fmt(v.price)}
-              </option>
-            ))}
-          </select>
+          <div className="fade-up stagger-3">
+            <StockListPicker
+              groups={groups}
+              value={vId}
+              onChange={(id) => { setVId(id); setQty(1); }}
+            />
+          </div>
 
           {variant && (
             <div className="text-[13px] leading-relaxed fade-up" style={{ color: "#aaa" }}>
