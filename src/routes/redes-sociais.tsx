@@ -6,6 +6,7 @@ import { purchaseUrl } from "@/lib/whatsapp";
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { StockListPicker, type StockGroup } from "@/components/StockListPicker";
 import { useCart } from "@/hooks/useCart";
+import banner from "@/assets/banners/redes-sociais.jpg";
 
 export const Route = createFileRoute("/redes-sociais")({
   head: () => ({
@@ -176,6 +177,9 @@ function RedesSociaisPage() {
         </div>
 
         <article className="rounded-lg border border-border bg-card overflow-hidden fade-up">
+          <div className="aspect-[16/9] bg-muted overflow-hidden fade-up">
+            <img src={banner} alt="Redes Sociais" className="h-full w-full object-cover" loading="lazy" />
+          </div>
           <div className="p-6 sm:p-10 flex flex-col gap-5">
             <label className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
               {active.label} — Selecione o pacote

@@ -6,7 +6,7 @@ import { purchaseUrl, whatsappUrl } from "@/lib/whatsapp";
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { StockListPicker, type StockGroup } from "@/components/StockListPicker";
 import { useCart } from "@/hooks/useCart";
-import img from "@/assets/cat-ps5.jpg";
+import img from "@/assets/banners/steam.jpg";
 
 export const Route = createFileRoute("/steam")({
   head: () => ({
