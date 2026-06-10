@@ -21,6 +21,7 @@ import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { CornerDragons } from "@/components/CornerDragons";
 import { EntryGate } from "@/components/EntryGate";
 import { CartDrawer } from "@/components/CartDrawer";
+import { Toaster } from "sonner";
 
 function NotFoundComponent() {
   return (
