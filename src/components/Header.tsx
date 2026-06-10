@@ -8,14 +8,12 @@ import { triggerRipple } from "@/lib/ripple";
 
 type NavItem = { to: string; label: string };
 const NAV: NavItem[] = [
-  { to: "/", label: "Início" },
-  { to: "/ps4", label: "PS4" },
-  { to: "/ps5", label: "Epic Games" },
   { to: "/streaming", label: "Assinaturas" },
   { to: "/steam", label: "Steam" },
   { to: "/redes-sociais", label: "Redes Sociais" },
-  { to: "/como-funciona", label: "Como funciona" },
-  { to: "/sobre", label: "Sobre Nós" },
+  { to: "/ps4", label: "PS4" },
+  { to: "/ps5", label: "Epic Games" },
+  { to: "/streaming", label: "Hulu+Star+ESPN" },
 ];
 
 export function Header() {
@@ -33,11 +31,14 @@ export function Header() {
   }, [bumpKey]);
 
   return (
-    <header className="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-background/80 border-b border-border">
+    <header
+      className="fixed top-0 inset-x-0 z-40 backdrop-blur-xl border-b"
+      style={{ background: "rgba(10,10,10,0.78)", borderColor: "#1a1a1a" }}
+    >
       <div className="container-tk flex items-center justify-between h-16">
-        <Link to="/" className="flex items-center gap-2 group">
-          <span className="seal" />
-          <span className="text-xl tracking-[0.3em] font-light">TOKYOBS</span>
+        <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+          <span className="kanji-badge">極</span>
+          <span className="text-xl tracking-[0.3em] font-semibold" style={{ fontFamily: "var(--font-display)" }}>TOKYOBS</span>
         </Link>
 
         {/* Desktop nav */}

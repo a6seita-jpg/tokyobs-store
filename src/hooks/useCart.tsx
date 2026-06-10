@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 
 export type CartItem = {
   id: string;          // unique key: product+variation
@@ -54,6 +55,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return [...curr, { ...raw, id }];
     });
     setBumpKey((k) => k + 1);
+    toast.success("Produto adicionado!", {
+      description: `${raw.product} — ${raw.variation}`,
+    });
   };
 
   const updateQty: CartCtx["updateQty"] = (id, qty) => {

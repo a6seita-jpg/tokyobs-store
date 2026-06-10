@@ -21,6 +21,7 @@ import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { CornerDragons } from "@/components/CornerDragons";
 import { EntryGate } from "@/components/EntryGate";
 import { CartDrawer } from "@/components/CartDrawer";
+import { Toaster } from "sonner";
 
 function NotFoundComponent() {
   return (
@@ -89,7 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=Noto+Sans+JP:wght@200;300;400;500;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=Poppins:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@200;300;400;500;700&display=swap",
       },
     ],
   }),
@@ -122,7 +123,7 @@ function RootComponent() {
         <AuthProvider>
           <CartProvider>
             <EntryGate>
-              <div className="min-h-screen flex flex-col">
+              <div className="min-h-screen flex flex-col tk-bg">
                 <Header />
                 <div className="flex-1 pt-16">
                   <Outlet />
@@ -132,6 +133,7 @@ function RootComponent() {
                 <CartDrawer />
                 <FloatingWhatsApp />
                 <CornerDragons />
+                <Toaster position="top-right" theme="dark" toastOptions={{ style: { background: "#141414", border: "1px solid #2a2a2a", color: "#fff" } }} />
               </div>
             </EntryGate>
           </CartProvider>
