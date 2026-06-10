@@ -16,6 +16,7 @@ import huluLogo from "@/assets/logos/hulu.jpg";
 import chatgptLogo from "@/assets/logos/chatgpt.jpg";
 import xboxLogo from "@/assets/logos/xbox.jpg";
 import spotifyLogo from "@/assets/logos/spotify.jpg";
+import primeLogo from "@/assets/logos/prime.jpg";
 
 import crunchyrollBanner from "@/assets/banners/crunchyroll.jpg";
 import youtubeBanner from "@/assets/banners/youtube.jpg";
@@ -56,8 +57,8 @@ const PRODUCTS: Product[] = [
     banner: crunchyrollBanner,
     intro: "Acesso Premium Mega Fan",
     variants: [
-      { label: "30 dias", price: 6.0, description: ["Full HD + 4K disponível", "Simulcast de lançamentos", "Sem anúncios", "Entrega até 2h via login"] },
-      { label: "90 dias Full Acesso", price: 29.9, description: ["Full HD + 4K disponível", "Simulcast de lançamentos", "Sem anúncios", "Acesso por 90 dias"] },
+      { label: "30 dias", price: 11.0, description: ["Full HD + 4K disponível", "Simulcast de lançamentos", "Sem anúncios", "Entrega até 2h via login"] },
+      { label: "90 dias Full Acesso", price: 34.9, description: ["Full HD + 4K disponível", "Simulcast de lançamentos", "Sem anúncios", "Acesso por 90 dias"] },
     ],
   },
   {
@@ -67,9 +68,9 @@ const PRODUCTS: Product[] = [
     banner: youtubeBanner,
     intro: "YouTube Premium + YouTube Music",
     variants: [
-      { label: "30 dias via link e-mail", price: 8.9, description: ["Sem anúncios no YouTube", "Music offline e background", "Ativação via link, sem login na sua conta", "Ativação imediata"] },
-      { label: "30 dias ativo e-mail", price: 6.9, description: ["Sem anúncios no YouTube", "Music offline e background", "Ativação direto no seu e-mail", "Ativação imediata"] },
-      { label: "30 dias renovável", price: 20.0, description: ["Sem anúncios no YouTube", "Music offline e background", "Plano renovável mensalmente", "Ativação imediata"] },
+      { label: "30 dias via link e-mail", price: 13.9, description: ["Sem anúncios no YouTube", "Music offline e background", "Ativação via link, sem login na sua conta", "Ativação imediata"] },
+      { label: "30 dias ativo e-mail", price: 11.9, description: ["Sem anúncios no YouTube", "Music offline e background", "Ativação direto no seu e-mail", "Ativação imediata"] },
+      { label: "30 dias renovável", price: 25.0, description: ["Sem anúncios no YouTube", "Music offline e background", "Plano renovável mensalmente", "Ativação imediata"] },
     ],
   },
   {
@@ -78,7 +79,7 @@ const PRODUCTS: Product[] = [
     logo: discordLogo,
     intro: "Discord Nitro Full",
     variants: [
-      { label: "30 dias", price: 9.9, description: ["Emojis e stickers animados em qualquer servidor", "Upload até 500MB", "Streaming HD 1080p 60fps", "Ativação imediata"] },
+      { label: "30 dias", price: 14.9, description: ["Emojis e stickers animados em qualquer servidor", "Upload até 500MB", "Streaming HD 1080p 60fps", "Ativação imediata"] },
     ],
   },
   {
@@ -88,7 +89,7 @@ const PRODUCTS: Product[] = [
     banner: netflixBanner,
     intro: "Netflix 4K Premium",
     variants: [
-      { label: "30 dias", price: 9.99, description: ["4 telas simultâneas", "Ultra HD 4K + HDR", "Catálogo completo", "Entrega rápida"] },
+      { label: "30 dias", price: 14.99, description: ["4 telas simultâneas", "Ultra HD 4K + HDR", "Catálogo completo", "Entrega rápida"] },
     ],
   },
   {
@@ -98,8 +99,8 @@ const PRODUCTS: Product[] = [
     banner: netflixBanner,
     intro: "Netflix Compartilhada — 1 tela HD",
     variants: [
-      { label: "7 dias", price: 6.75, description: ["1 tela em HD", "Catálogo completo Netflix", "Tela individual reservada", "Entrega rápida"] },
-      { label: "15 dias", price: 7.99, description: ["1 tela em HD", "Catálogo completo Netflix", "Tela individual reservada", "Entrega rápida"] },
+      { label: "7 dias", price: 11.75, description: ["1 tela em HD", "Catálogo completo Netflix", "Tela individual reservada", "Entrega rápida"] },
+      { label: "15 dias", price: 12.99, description: ["1 tela em HD", "Catálogo completo Netflix", "Tela individual reservada", "Entrega rápida"] },
     ],
   },
   {
@@ -109,21 +110,21 @@ const PRODUCTS: Product[] = [
     banner: paramountBanner,
     intro: "Paramount+ Full Acesso",
     variants: [
-      { label: "30 dias", price: 8.9, description: ["Séries originais + filmes", "Conteúdo CBS, MTV, Nickelodeon", "Full HD", "Entrega rápida"] },
-      { label: "14 dias", price: 7.5, description: ["Teste Paramount+ 14 dias", "Catálogo completo", "Full HD", "Entrega rápida"] },
-      { label: "7 dias Promo", price: 6.0, description: ["Teste rápido Paramount+ 7 dias", "Catálogo completo", "Full HD", "Entrega rápida"] },
+      { label: "30 dias", price: 13.9, description: ["Séries originais + filmes", "Conteúdo CBS, MTV, Nickelodeon", "Full HD", "Entrega rápida"] },
+      { label: "14 dias", price: 12.5, description: ["Teste Paramount+ 14 dias", "Catálogo completo", "Full HD", "Entrega rápida"] },
+      { label: "7 dias Promo", price: 11.0, description: ["Teste rápido Paramount+ 7 dias", "Catálogo completo", "Full HD", "Entrega rápida"] },
     ],
   },
   {
     id: "prime",
     title: "Prime Video",
-    logo: youtubeLogo,
+    logo: primeLogo,
     banner: primeBanner,
     intro: "Prime Video Full Acesso",
     variants: [
-      { label: "30 dias", price: 8.9, description: ["Filmes + Séries Amazon Original", "Full HD", "Multi-dispositivo", "Entrega rápida"] },
-      { label: "14 dias", price: 7.9, description: ["Teste Prime Video 14 dias", "Catálogo completo", "Full HD", "Entrega rápida"] },
-      { label: "7 dias Promo", price: 6.0, description: ["Teste rápido Prime Video 7 dias", "Catálogo completo", "Full HD", "Entrega rápida"] },
+      { label: "30 dias", price: 13.9, description: ["Filmes + Séries Amazon Original", "Full HD", "Multi-dispositivo", "Entrega rápida"] },
+      { label: "14 dias", price: 12.9, description: ["Teste Prime Video 14 dias", "Catálogo completo", "Full HD", "Entrega rápida"] },
+      { label: "7 dias Promo", price: 11.0, description: ["Teste rápido Prime Video 7 dias", "Catálogo completo", "Full HD", "Entrega rápida"] },
     ],
   },
   {
@@ -133,9 +134,9 @@ const PRODUCTS: Product[] = [
     banner: huluBanner,
     intro: "Combo Hulu + Star+ + ESPN",
     variants: [
-      { label: "30 dias", price: 7.9, description: ["Esportes ao vivo ESPN", "Séries Hulu + Star+", "Full HD", "Entrega rápida"] },
-      { label: "10 dias", price: 6.9, description: ["Teste combo 10 dias", "Esportes + séries", "Full HD", "Entrega rápida"] },
-      { label: "7 dias", price: 6.0, description: ["Teste combo 7 dias", "Esportes + séries", "Full HD", "Entrega rápida"] },
+      { label: "30 dias", price: 12.9, description: ["Esportes ao vivo ESPN", "Séries Hulu + Star+", "Full HD", "Entrega rápida"] },
+      { label: "10 dias", price: 11.9, description: ["Teste combo 10 dias", "Esportes + séries", "Full HD", "Entrega rápida"] },
+      { label: "7 dias", price: 11.0, description: ["Teste combo 7 dias", "Esportes + séries", "Full HD", "Entrega rápida"] },
     ],
   },
   {
@@ -145,8 +146,8 @@ const PRODUCTS: Product[] = [
     banner: chatgptBanner,
     intro: "ChatGPT 5.2 Plus",
     variants: [
-      { label: "30 dias", price: 9.9, description: ["GPT-4o ilimitado", "Geração de imagens DALL-E 3", "Acesso prioritário", "30 dias full acesso"] },
-      { label: "30 dias + Gmail novo", price: 17.9, description: ["GPT-4o ilimitado", "Conta Gmail nova criada", "Acesso prioritário", "30 dias full acesso"] },
+      { label: "30 dias", price: 14.9, description: ["GPT-4o ilimitado", "Geração de imagens DALL-E 3", "Acesso prioritário", "30 dias full acesso"] },
+      { label: "30 dias + Gmail novo", price: 22.9, description: ["GPT-4o ilimitado", "Conta Gmail nova criada", "Acesso prioritário", "30 dias full acesso"] },
     ],
   },
   {
@@ -156,10 +157,10 @@ const PRODUCTS: Product[] = [
     banner: xboxBanner,
     intro: "GamePass Ultimate",
     variants: [
-      { label: "7 dias + brinde", price: 6.0, description: ["Catálogo Ultimate completo", "PC + Console + Cloud", "Brinde digital incluso", "Entrega rápida"] },
-      { label: "15 dias + brinde", price: 6.99, description: ["Catálogo Ultimate completo", "PC + Console + Cloud", "Brinde digital incluso", "Entrega rápida"] },
-      { label: "30 dias + brinde", price: 8.49, description: ["Catálogo Ultimate completo", "PC + Console + Cloud", "Brinde digital incluso", "Entrega rápida"] },
-      { label: "30 dias Console", price: 8.49, description: ["Versão Console", "Catálogo Ultimate completo", "Acesso direto no seu Xbox", "Entrega rápida"] },
+      { label: "7 dias + brinde", price: 11.0, description: ["Catálogo Ultimate completo", "PC + Console + Cloud", "Brinde digital incluso", "Entrega rápida"] },
+      { label: "15 dias + brinde", price: 11.99, description: ["Catálogo Ultimate completo", "PC + Console + Cloud", "Brinde digital incluso", "Entrega rápida"] },
+      { label: "30 dias + brinde", price: 13.49, description: ["Catálogo Ultimate completo", "PC + Console + Cloud", "Brinde digital incluso", "Entrega rápida"] },
+      { label: "30 dias Console", price: 13.49, description: ["Versão Console", "Catálogo Ultimate completo", "Acesso direto no seu Xbox", "Entrega rápida"] },
     ],
   },
   {
@@ -169,8 +170,8 @@ const PRODUCTS: Product[] = [
     banner: spotifyBanner,
     intro: "Spotify Premium",
     variants: [
-      { label: "Link 3 meses", price: 6.0, description: ["Spotify Premium 3 meses via link", "Sem login na sua conta", "Música offline", "Sem anúncios"] },
-      { label: "50 links 3 meses", price: 12.99, description: ["Pacote 50 contas Spotify 3 meses", "Ideal para revenda", "Sem login compartilhado", "Entrega imediata"] },
+      { label: "Link 3 meses", price: 11.0, description: ["Spotify Premium 3 meses via link", "Sem login na sua conta", "Música offline", "Sem anúncios"] },
+      { label: "50 links 3 meses", price: 17.990000000000002, description: ["Pacote 50 contas Spotify 3 meses", "Ideal para revenda", "Sem login compartilhado", "Entrega imediata"] },
     ],
   },
 ];
