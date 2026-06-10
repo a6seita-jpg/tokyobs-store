@@ -55,6 +55,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return [...curr, { ...raw, id }];
     });
     setBumpKey((k) => k + 1);
+    toast.success("Produto adicionado!", {
+      description: `${raw.product} — ${raw.variation}`,
+    });
   };
 
   const updateQty: CartCtx["updateQty"] = (id, qty) => {
