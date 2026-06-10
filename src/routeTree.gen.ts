@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StreamingRouteImport } from './routes/streaming'
+import { Route as SteamRouteImport } from './routes/steam'
 import { Route as SobreRouteImport } from './routes/sobre'
+import { Route as RedesSociaisRouteImport } from './routes/redes-sociais'
 import { Route as Ps5RouteImport } from './routes/ps5'
 import { Route as Ps4RouteImport } from './routes/ps4'
 import { Route as PerfilRouteImport } from './routes/perfil'
@@ -22,9 +24,19 @@ const StreamingRoute = StreamingRouteImport.update({
   path: '/streaming',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SteamRoute = SteamRouteImport.update({
+  id: '/steam',
+  path: '/steam',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SobreRoute = SobreRouteImport.update({
   id: '/sobre',
   path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RedesSociaisRoute = RedesSociaisRouteImport.update({
+  id: '/redes-sociais',
+  path: '/redes-sociais',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Ps5Route = Ps5RouteImport.update({
@@ -59,7 +71,9 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
   '/ps5': typeof Ps5Route
+  '/redes-sociais': typeof RedesSociaisRoute
   '/sobre': typeof SobreRoute
+  '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
 }
 export interface FileRoutesByTo {
@@ -68,7 +82,9 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
   '/ps5': typeof Ps5Route
+  '/redes-sociais': typeof RedesSociaisRoute
   '/sobre': typeof SobreRoute
+  '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
 }
 export interface FileRoutesById {
@@ -78,7 +94,9 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
   '/ps5': typeof Ps5Route
+  '/redes-sociais': typeof RedesSociaisRoute
   '/sobre': typeof SobreRoute
+  '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
 }
 export interface FileRouteTypes {
@@ -89,7 +107,9 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/ps4'
     | '/ps5'
+    | '/redes-sociais'
     | '/sobre'
+    | '/steam'
     | '/streaming'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -98,7 +118,9 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/ps4'
     | '/ps5'
+    | '/redes-sociais'
     | '/sobre'
+    | '/steam'
     | '/streaming'
   id:
     | '__root__'
@@ -107,7 +129,9 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/ps4'
     | '/ps5'
+    | '/redes-sociais'
     | '/sobre'
+    | '/steam'
     | '/streaming'
   fileRoutesById: FileRoutesById
 }
@@ -117,7 +141,9 @@ export interface RootRouteChildren {
   PerfilRoute: typeof PerfilRoute
   Ps4Route: typeof Ps4Route
   Ps5Route: typeof Ps5Route
+  RedesSociaisRoute: typeof RedesSociaisRoute
   SobreRoute: typeof SobreRoute
+  SteamRoute: typeof SteamRoute
   StreamingRoute: typeof StreamingRoute
 }
 
@@ -130,11 +156,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StreamingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/steam': {
+      id: '/steam'
+      path: '/steam'
+      fullPath: '/steam'
+      preLoaderRoute: typeof SteamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sobre': {
       id: '/sobre'
       path: '/sobre'
       fullPath: '/sobre'
       preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/redes-sociais': {
+      id: '/redes-sociais'
+      path: '/redes-sociais'
+      fullPath: '/redes-sociais'
+      preLoaderRoute: typeof RedesSociaisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ps5': {
@@ -181,7 +221,9 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilRoute: PerfilRoute,
   Ps4Route: Ps4Route,
   Ps5Route: Ps5Route,
+  RedesSociaisRoute: RedesSociaisRoute,
   SobreRoute: SobreRoute,
+  SteamRoute: SteamRoute,
   StreamingRoute: StreamingRoute,
 }
 export const routeTree = rootRouteImport
