@@ -7,15 +7,14 @@ import { GridSkeleton } from "@/components/Skeleton";
 import catPs4 from "@/assets/cat-ps4.jpg";
 import catPs5 from "@/assets/cat-ps5.jpg";
 import catStreaming from "@/assets/cat-streaming.jpg";
-import catRoblox from "@/assets/cat-roblox.jpg";
-import catVariados from "@/assets/cat-variados.jpg";
-import catAcessorios from "@/assets/cat-acessorios.jpg";
+import catSteam from "@/assets/cat-ps5.jpg";
+import catRedes from "@/assets/cat-acessorios.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "TOKYOBS — O que você procura, a gente tem" },
-      { name: "description", content: "Variedade, preço justo e entrega rápida. Catálogo PS4, PS5, Streaming, Roblox, Variados e Acessórios." },
+      { name: "description", content: "Variedade, preço justo e entrega rápida. Catálogo PS4, Epic Games, Streaming, Steam e Redes Sociais." },
       { property: "og:title", content: "TOKYOBS" },
       { property: "og:description", content: "O que você procura, a gente tem." },
     ],
@@ -27,9 +26,8 @@ const CATEGORIES = [
   { to: "/ps4", label: "PS4", image: catPs4, guarded: true },
   { to: "/ps5", label: "Epic Games", image: catPs5 },
   { to: "/streaming", label: "Assinaturas", image: catStreaming },
-  { to: "/roblox", label: "Roblox", image: catRoblox },
-  { to: "/variados", label: "Variados", image: catVariados },
-  { to: "/acessorios", label: "Acessórios", image: catAcessorios },
+  { to: "/steam", label: "Steam", image: catSteam },
+  { to: "/redes-sociais", label: "Redes Sociais", image: catRedes },
 ];
 
 function Home() {
@@ -70,7 +68,7 @@ function Home() {
         {loading ? (
           <GridSkeleton count={6} />
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {CATEGORIES.map((c) => (
               <CategoryCard key={c.to} {...c} />
             ))}
