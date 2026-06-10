@@ -16,6 +16,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   --font-sans: "Inter", "Noto Sans JP", system-ui, sans-serif;
+  --font-display: "Poppins", "Inter", system-ui, sans-serif;
   --font-jp: "Noto Sans JP", "Inter", sans-serif;
 
   --color-background: var(--background);
