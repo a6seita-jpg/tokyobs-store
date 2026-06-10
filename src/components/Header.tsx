@@ -8,14 +8,12 @@ import { triggerRipple } from "@/lib/ripple";
 
 type NavItem = { to: string; label: string };
 const NAV: NavItem[] = [
-  { to: "/", label: "Início" },
-  { to: "/ps4", label: "PS4" },
-  { to: "/ps5", label: "Epic Games" },
   { to: "/streaming", label: "Assinaturas" },
   { to: "/steam", label: "Steam" },
   { to: "/redes-sociais", label: "Redes Sociais" },
-  { to: "/como-funciona", label: "Como funciona" },
-  { to: "/sobre", label: "Sobre Nós" },
+  { to: "/ps4", label: "PS4" },
+  { to: "/ps5", label: "Epic Games" },
+  { to: "/streaming", label: "Hulu+Star+ESPN" },
 ];
 
 export function Header() {
