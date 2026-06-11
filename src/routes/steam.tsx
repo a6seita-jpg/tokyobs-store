@@ -7,6 +7,7 @@ import { QuantitySelector } from "@/components/QuantitySelector";
 import { StockListPicker, type StockGroup } from "@/components/StockListPicker";
 import { useCart } from "@/hooks/useCart";
 import img from "@/assets/banners/steam.jpg";
+import { ReviewSection } from "@/components/ReviewSection";
 
 export const Route = createFileRoute("/steam")({
   head: () => ({
@@ -177,6 +178,12 @@ function SteamPage() {
           </a>
         </div>
       </article>
+
+      {selected && (
+        <div className="max-w-2xl mx-auto">
+          <ReviewSection productId={`steam:${selected.id}`} productName={selected.label} />
+        </div>
+      )}
     </main>
   );
 }

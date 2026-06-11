@@ -27,6 +27,7 @@ import chatgptBanner from "@/assets/banners/chatgpt.jpg";
 import xboxBanner from "@/assets/banners/xbox.jpg";
 import spotifyBanner from "@/assets/banners/spotify.jpg";
 import primeBanner from "@/assets/banners/prime.jpg";
+import { ReviewSection } from "@/components/ReviewSection";
 
 export const Route = createFileRoute("/streaming")({
   head: () => ({
@@ -326,6 +327,10 @@ function ProductDetail({ product, onBack }: { product: Product; onBack: () => vo
             </>
           )}
         </div>
+      </div>
+
+      <div className="px-6 sm:px-10 pb-8">
+        <ReviewSection productId={`streaming:${product.id}`} productName={product.title} />
       </div>
     </article>
   );
