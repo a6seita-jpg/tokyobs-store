@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { MessageCircle, ShoppingCart, Check } from "lucide-react";
+import { Zap, ShoppingCart, Check } from "lucide-react";
 import { triggerRipple } from "@/lib/ripple";
-import { purchaseUrl, whatsappUrl } from "@/lib/whatsapp";
+import { useBuyNow } from "@/lib/buyNow";
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { StockListPicker, type StockGroup } from "@/components/StockListPicker";
 import { useCart } from "@/hooks/useCart";
@@ -80,9 +80,7 @@ function EpicGamesPage() {
   const total = game ? game.price * qty : 0;
   const variation = game ? `${game.name} (Full Acesso + Email)` : "";
 
-  const href = game
-    ? purchaseUrl({ product: "Epic Games", variation, quantity: qty, total })
-    : "#";
+  const buyNow = useBuyNow();
 
   const handleAdd = () => {
     if (!game) return;
@@ -127,7 +125,6 @@ function EpicGamesPage() {
 
           <p className="text-sm text-muted-foreground leading-relaxed fade-up stagger-3">
             ⚠ Conta com e-mail. Você pode trocar o e-mail após 30/90 dias. Entrega até 24h.
-            Não encontrou o jogo? Consulte outros títulos no WhatsApp
           </p>
 
           {game && (
@@ -140,16 +137,14 @@ function EpicGamesPage() {
                 </div>
               </div>
 
-              <a
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                onClick={triggerRipple}
+              <button
+                type="button"
+                onClick={(e) => { triggerRipple(e); buyNow({ product: "Epic Games", variation, unitPrice: game.price, quantity: qty, image: img }); }}
                 className="ripple-host inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition fade-up stagger-5"
               >
-                <MessageCircle className="h-4 w-4" />
-                Comprar via WhatsApp
-              </a>
+                <Zap className="h-4 w-4" />
+                Comprar agora com Pix
+              </button>
 
               <button
                 type="button"
@@ -166,14 +161,12 @@ function EpicGamesPage() {
             </>
           )}
 
-          <a
-            href={whatsappUrl("Epic Games")}
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            to="/suporte"
             className="text-center text-xs text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
           >
-            Não encontrou o jogo? Consulte outros títulos no WhatsApp
-          </a>
+            Não encontrou o jogo? Fale com a gente
+          </Link>
         </div>
       </article>
     </main>

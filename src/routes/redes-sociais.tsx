@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { MessageCircle, ShoppingCart, Check, Instagram, Music2 } from "lucide-react";
+import { Zap, ShoppingCart, Check, Instagram, Music2 } from "lucide-react";
 import { triggerRipple } from "@/lib/ripple";
-import { purchaseUrl } from "@/lib/whatsapp";
+import { useBuyNow } from "@/lib/buyNow";
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { StockListPicker, type StockGroup } from "@/components/StockListPicker";
 import { useCart } from "@/hooks/useCart";
@@ -124,9 +124,7 @@ function RedesSociaisPage() {
 
   const total = selected ? selected.price * qty : 0;
   const productLabel = active.label;
-  const href = selected
-    ? purchaseUrl({ product: productLabel, variation: selected.label, quantity: qty, total })
-    : "#";
+  const buyNow = useBuyNow();
 
   const handleAdd = () => {
     if (!selected) return;
@@ -213,16 +211,14 @@ function RedesSociaisPage() {
                   </div>
                 </div>
 
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={triggerRipple}
+                <button
+                  type="button"
+                  onClick={(e) => { triggerRipple(e); buyNow({ product: productLabel, variation: selected.label, unitPrice: selected.price, quantity: qty, image: banner }); }}
                   className="ripple-host inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition fade-up"
                 >
-                  <MessageCircle className="h-4 w-4" />
-                  Comprar via WhatsApp
-                </a>
+                  <Zap className="h-4 w-4" />
+                  Comprar agora com Pix
+                </button>
 
                 <button
                   type="button"

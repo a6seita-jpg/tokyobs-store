@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowLeft, MessageCircle, ShoppingCart, Check } from "lucide-react";
+import { ArrowLeft, Zap, ShoppingCart, Check } from "lucide-react";
 import { triggerRipple } from "@/lib/ripple";
-import { purchaseUrl } from "@/lib/whatsapp";
+import { useBuyNow } from "@/lib/buyNow";
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { StockListPicker, type StockGroup } from "@/components/StockListPicker";
 import { useCart } from "@/hooks/useCart";
@@ -218,9 +218,7 @@ function ProductDetail({ product, onBack }: { product: Product; onBack: () => vo
   );
   const total = variant ? variant.price * qty : 0;
 
-  const href = variant
-    ? purchaseUrl({ product: product.title, variation: variant.label, quantity: qty, total })
-    : "#";
+  const buyNow = useBuyNow();
 
   const handleAdd = () => {
     if (!variant) return;
@@ -301,16 +299,14 @@ function ProductDetail({ product, onBack }: { product: Product; onBack: () => vo
                 </div>
               </div>
 
-              <a
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                onClick={triggerRipple}
+              <button
+                type="button"
+                onClick={(e) => { triggerRipple(e); buyNow({ product: product.title, variation: variant.label, unitPrice: variant.price, quantity: qty, image: product.logo }); }}
                 className="ripple-host inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition fade-up"
               >
-                <MessageCircle className="h-4 w-4" />
-                Comprar via WhatsApp
-              </a>
+                <Zap className="h-4 w-4" />
+                Comprar agora com Pix
+              </button>
 
               <button
                 type="button"
@@ -349,7 +345,7 @@ function StreamingPage() {
         <h1 className="mt-3 text-4xl sm:text-5xl font-extralight">Assinaturas</h1>
         <p className="mt-3 text-sm text-muted-foreground">
           {selected
-            ? "Escolha a variação, defina a quantidade e finalize no WhatsApp."
+            ? "Escolha a variação, defina a quantidade e finalize com Pix."
             : "Selecione uma categoria para ver as variações disponíveis."}
         </p>
       </div>

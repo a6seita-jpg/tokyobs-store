@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { MessageCircle, ShoppingCart, Check } from "lucide-react";
+import { Zap, ShoppingCart, Check } from "lucide-react";
 import { triggerRipple } from "@/lib/ripple";
-import { purchaseUrl, whatsappUrl } from "@/lib/whatsapp";
+import { useBuyNow } from "@/lib/buyNow";
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { StockListPicker, type StockGroup } from "@/components/StockListPicker";
 import { useCart } from "@/hooks/useCart";
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/steam")({
   head: () => ({
     meta: [
       { title: "TOKYOBS — Steam · Keys e Jogos" },
-      { name: "description", content: "Keys Steam aleatórias e jogos específicos com melhor preço. Entrega rápida via WhatsApp." },
+      { name: "description", content: "Keys Steam aleatórias e jogos específicos com melhor preço. Entrega rápida e pagamento via Pix." },
       { property: "og:title", content: "TOKYOBS Steam" },
       { property: "og:image", content: img },
     ],
@@ -73,9 +73,7 @@ function SteamPage() {
 
   const total = selected ? selected.price * qty : 0;
   const variation = selected ? selected.label : "";
-  const href = selected
-    ? purchaseUrl({ product: "Steam", variation, quantity: qty, total })
-    : "#";
+  const buyNow = useBuyNow();
 
   const handleAdd = () => {
     if (!selected) return;
@@ -126,7 +124,7 @@ function SteamPage() {
               <ul className="space-y-1">
                 <li>• Key resgatável diretamente na Steam</li>
                 <li>• Entrega digital em até 2h</li>
-                <li>• Suporte 24h via WhatsApp</li>
+                <li>• Suporte 24h pelo site</li>
                 <li>• Estoque atual: {selected.stock} unidades</li>
               </ul>
             </div>
@@ -142,16 +140,14 @@ function SteamPage() {
                 </div>
               </div>
 
-              <a
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                onClick={triggerRipple}
+              <button
+                type="button"
+                onClick={(e) => { triggerRipple(e); buyNow({ product: "Steam", variation, unitPrice: selected.price, quantity: qty, image: img }); }}
                 className="ripple-host inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition fade-up stagger-5"
               >
-                <MessageCircle className="h-4 w-4" />
-                Comprar via WhatsApp
-              </a>
+                <Zap className="h-4 w-4" />
+                Comprar agora com Pix
+              </button>
 
               <button
                 type="button"
@@ -168,14 +164,12 @@ function SteamPage() {
             </>
           )}
 
-          <a
-            href={whatsappUrl("Steam")}
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            to="/suporte"
             className="text-center text-xs text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
           >
-            Não encontrou o que procura? Fale no WhatsApp
-          </a>
+            Não encontrou o que procura? Fale com a gente
+          </Link>
         </div>
       </article>
 
