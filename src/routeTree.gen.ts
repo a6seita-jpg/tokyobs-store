@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SuporteRouteImport } from './routes/suporte'
 import { Route as StreamingRouteImport } from './routes/streaming'
 import { Route as SteamRouteImport } from './routes/steam'
 import { Route as SobreRouteImport } from './routes/sobre'
@@ -21,6 +22,11 @@ import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutPixRouteImport } from './routes/checkout.pix'
 
+const SuporteRoute = SuporteRouteImport.update({
+  id: '/suporte',
+  path: '/suporte',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StreamingRoute = StreamingRouteImport.update({
   id: '/streaming',
   path: '/streaming',
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
+  '/suporte': typeof SuporteRoute
   '/checkout/pix': typeof CheckoutPixRoute
 }
 export interface FileRoutesByTo {
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
+  '/suporte': typeof SuporteRoute
   '/checkout/pix': typeof CheckoutPixRoute
 }
 export interface FileRoutesById {
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
+  '/suporte': typeof SuporteRoute
   '/checkout/pix': typeof CheckoutPixRoute
 }
 export interface FileRouteTypes {
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/steam'
     | '/streaming'
+    | '/suporte'
     | '/checkout/pix'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/steam'
     | '/streaming'
+    | '/suporte'
     | '/checkout/pix'
   id:
     | '__root__'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/steam'
     | '/streaming'
+    | '/suporte'
     | '/checkout/pix'
   fileRoutesById: FileRoutesById
 }
@@ -170,11 +182,19 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   SteamRoute: typeof SteamRoute
   StreamingRoute: typeof StreamingRoute
+  SuporteRoute: typeof SuporteRoute
   CheckoutPixRoute: typeof CheckoutPixRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/suporte': {
+      id: '/suporte'
+      path: '/suporte'
+      fullPath: '/suporte'
+      preLoaderRoute: typeof SuporteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/streaming': {
       id: '/streaming'
       path: '/streaming'
@@ -266,6 +286,7 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   SteamRoute: SteamRoute,
   StreamingRoute: StreamingRoute,
+  SuporteRoute: SuporteRoute,
   CheckoutPixRoute: CheckoutPixRoute,
 }
 export const routeTree = rootRouteImport
