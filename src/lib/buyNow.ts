@@ -8,7 +8,7 @@ export function useBuyNow() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  return (item: Omit<CartItem, "id">) => {
+  return (item: Omit<CartItem, "id"> & { id?: string }) => {
     const buyer = user
       ? { email: user.email, nickname: user.nickname }
       : { email: "convidado@tokyobs.store", nickname: "Convidado" };
