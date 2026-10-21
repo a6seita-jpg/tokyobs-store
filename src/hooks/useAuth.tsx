@@ -12,6 +12,8 @@ export type TKUser = {
 type StoredUser = TKUser & { password: string };
 
 type AuthCtx = {
+  /** true após a sessão do localStorage ser restaurada (evita pedir login antes da hidratação) */
+  hydrated: boolean;
   user: TKUser | null;
   isGuest: boolean;
   isAdmin: boolean;
@@ -87,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isGuest, setIsGuest] = useState(false);
   const [isLoginOpen, setLoginOpen] = useState(false);
   const [loginMessage, setLoginMessage] = useState("");
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -96,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try { setUser(JSON.parse(raw)); } catch { /* noop */ }
     }
     if (localStorage.getItem(GUEST_KEY) === "1") setIsGuest(true);
+    setHydrated(true);
   }, []);
 
   const persistSession = (u: TKUser | null) => {
@@ -181,7 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      user, isGuest, isAdmin, hasAccess,
+      hydrated, user, isGuest, isAdmin, hasAccess,
       login, loginAsGuest, register, logout, updateProfile,
       openLogin, closeLogin, isLoginOpen, loginMessage,
       requireAuth, resetPassword,

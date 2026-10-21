@@ -28,15 +28,15 @@ function brl(v: number) {
 }
 
 function AdminPage() {
-  const { user, isAdmin, isGuest, openLogin, requireAuth } = useAuth();
+  const { hydrated, user, isAdmin, isGuest, requireAuth } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<OrderStatus | "todos">("todos");
   const [comprovante, setComprovante] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user && !isGuest) requireAuth("Acesso restrito ao administrador");
-  }, [user, isGuest, requireAuth]);
+    if (hydrated && !user && !isGuest) requireAuth("Acesso restrito ao administrador");
+  }, [hydrated, user, isGuest, requireAuth]);
 
   useEffect(() => {
     if (isAdmin) setOrders(listOrders());
@@ -52,6 +52,8 @@ function AdminPage() {
       receita: ativos.reduce((s, o) => s + o.total, 0),
     };
   }, [orders]);
+
+  if (!hydrated) return null;
 
   if (!user) {
     return (
