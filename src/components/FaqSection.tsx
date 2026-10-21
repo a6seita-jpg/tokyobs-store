@@ -12,7 +12,7 @@ const FAQ = [
   },
   {
     q: "Quais formas de pagamento?",
-    a: "PIX, Cartão, Boleto. Enviamos QR Code no WhatsApp.",
+    a: "Pix com QR Code e código copia-e-cola gerados na hora, direto no site.",
   },
   {
     q: "Os jogos são originais?",
@@ -20,11 +20,11 @@ const FAQ = [
   },
   {
     q: "Funciona no meu console?",
-    a: "Confirmamos compatibilidade no Whats antes da venda.",
+    a: "Confirmamos compatibilidade pelo suporte do site antes da venda.",
   },
   {
     q: "Posso parcelar?",
-    a: "Consulte no Whats, temos opções de parcelamento.",
+    a: "Fale com a gente pelo suporte para opções de parcelamento.",
   },
 ];
 

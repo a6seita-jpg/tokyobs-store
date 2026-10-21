@@ -17,7 +17,6 @@ import { CartProvider } from "@/hooks/useCart";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LoginModal } from "@/components/LoginModal";
-import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { CornerDragons } from "@/components/CornerDragons";
 import { EntryGate } from "@/components/EntryGate";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -76,13 +75,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "TOKYOBS — O que você procura, a gente tem" },
-      { name: "description", content: "Loja de variedades TOKYOBS. PS4, Epic Games, Assinaturas e muito mais. Atendimento humano via WhatsApp." },
+      { name: "description", content: "Loja de variedades TOKYOBS. PS4, Epic Games, Assinaturas e muito mais. Pagamento via Pix." },
       { property: "og:title", content: "TOKYOBS — O que você procura, a gente tem" },
-      { property: "og:description", content: "Loja de variedades TOKYOBS. Atendimento humano via WhatsApp." },
+      { property: "og:description", content: "Loja de variedades TOKYOBS. Pagamento via Pix." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "TOKYOBS — O que você procura, a gente tem" },
-      { name: "twitter:description", content: "Loja de variedades TOKYOBS. Atendimento humano via WhatsApp." },
+      { name: "twitter:description", content: "Loja de variedades TOKYOBS. Pagamento via Pix." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -131,7 +130,6 @@ function RootComponent() {
                 <Footer />
                 <LoginModal />
                 <CartDrawer />
-                <FloatingWhatsApp />
                 <CornerDragons />
                 <Toaster position="top-right" theme="dark" toastOptions={{ style: { background: "#141414", border: "1px solid #2a2a2a", color: "#fff" } }} />
               </div>

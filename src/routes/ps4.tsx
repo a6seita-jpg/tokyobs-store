@@ -1,8 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { triggerRipple } from "@/lib/ripple";
-import { whatsappUrl } from "@/lib/whatsapp";
 import ps4Hero from "@/assets/banners/ps4.jpg";
 
 export const Route = createFileRoute("/ps4")({
@@ -61,15 +60,13 @@ function Ps4Page() {
                 Sob consulta
               </span>
             </div>
-            <a
-              href={whatsappUrl("PS4 (jogo específico)")}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to="/suporte"
               onClick={triggerRipple}
               className="ripple-host w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition"
             >
-              Consultar Disponibilidade no WhatsApp
-            </a>
+              Consultar Disponibilidade
+            </Link>
           </div>
         </div>
       </article>

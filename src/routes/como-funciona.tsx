@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MessageCircle, Zap } from "lucide-react";
+import { Search, CreditCard, Zap } from "lucide-react";
 import { triggerRipple } from "@/lib/ripple";
 
 export const Route = createFileRoute("/como-funciona")({
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/como-funciona")({
       { title: "Como funciona — TOKYOBS" },
       { name: "description", content: "Em 3 passos: busque, consulte e receba seu produto em até 15 minutos." },
       { property: "og:title", content: "Como funciona — TOKYOBS" },
-      { property: "og:description", content: "Busque, consulte no WhatsApp e receba em 15min." },
+      { property: "og:description", content: "Busque, pague com Pix e receba em 15min." },
     ],
   }),
   component: ComoFuncionaPage,
@@ -21,9 +21,9 @@ const STEPS = [
     text: "Digite o que você procura na barra de busca",
   },
   {
-    icon: MessageCircle,
-    title: "Passo 2 — Consulta",
-    text: "Fale conosco no WhatsApp com 1 clique",
+    icon: CreditCard,
+    title: "Passo 2 — Pagamento",
+    text: "Pague com Pix direto no site, com QR Code",
   },
   {
     icon: Zap,
