@@ -77,7 +77,7 @@ function Home() {
         <div className="grid grid-cols-3 gap-2 sm:gap-4 rounded-xl p-3 sm:p-4" style={{ background: "rgba(20,20,20,0.6)", border: "1px solid #1f1f1f" }}>
           <TrustItem icon={<Zap className="h-4 w-4" />} label="Entrega rápida" sub="Até 2 horas" />
           <TrustItem icon={<Shield className="h-4 w-4" />} label="100% seguro" sub="Garantia total" />
-          <TrustItem icon={<Headphones className="h-4 w-4" />} label="Suporte 24h" sub="WhatsApp direto" />
+          <TrustItem icon={<Headphones className="h-4 w-4" />} label="Suporte 24h" sub="Atendimento no site" />
         </div>
       </section>
 

@@ -1,5 +1,6 @@
-import { X, Trash2, MessageCircle, Plus, Minus } from "lucide-react";
-import { useCart, fmtBRL, buildCartWhatsAppUrl } from "@/hooks/useCart";
+import { Link } from "@tanstack/react-router";
+import { X, Trash2, Zap, Plus, Minus } from "lucide-react";
+import { useCart, fmtBRL } from "@/hooks/useCart";
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, updateQty, removeItem, totalPrice, totalCount } = useCart();
@@ -109,18 +110,16 @@ export function CartDrawer() {
             </span>
             <span className="text-xl font-light text-primary">{fmtBRL(totalPrice)}</span>
           </div>
-          <a
-            href={items.length ? buildCartWhatsAppUrl(items, totalPrice) : undefined}
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            to="/carrinho"
+            onClick={closeCart}
             aria-disabled={items.length === 0}
-            onClick={(e) => { if (items.length === 0) e.preventDefault(); }}
-            className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
-            style={{ opacity: items.length === 0 ? 0.5 : 1 }}
+            className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition"
+            style={{ opacity: items.length === 0 ? 0.5 : 1, pointerEvents: items.length === 0 ? "none" : "auto" }}
           >
-            <MessageCircle className="h-4 w-4" />
-            Finalizar no WhatsApp
-          </a>
+            <Zap className="h-4 w-4" />
+            Finalizar com Pix
+          </Link>
         </footer>
       </aside>
     </>

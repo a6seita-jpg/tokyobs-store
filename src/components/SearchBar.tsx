@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Search, MessageCircle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Search, Headphones } from "lucide-react";
 import { triggerRipple } from "@/lib/ripple";
-
-const PHONE = "5573988810368";
 
 export function SearchBar() {
   const [term, setTerm] = useState("");
@@ -12,10 +11,6 @@ export function SearchBar() {
     e.preventDefault();
     setSubmitted(term.trim());
   };
-
-  const waHref = `https://wa.me/${PHONE}?text=${encodeURIComponent(
-    `Olá! Tenho interesse em algum dos produtos da TOKYOBS. Busquei por: ${submitted || term}`
-  )}`;
 
   return (
     <section className="container-tk -mt-4 sm:-mt-6 pb-12">
@@ -36,16 +31,14 @@ export function SearchBar() {
           <p className="text-sm text-muted-foreground">
             Resultados para: <span className="text-foreground font-medium">{submitted}</span>
           </p>
-          <a
-            href={waHref}
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            to="/suporte"
             onClick={triggerRipple}
             className="ripple-host mt-3 inline-flex items-center gap-2 h-11 px-5 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition text-sm"
           >
-            <MessageCircle className="h-4 w-4" />
-            Não encontrou? Consultar no WhatsApp
-          </a>
+            <Headphones className="h-4 w-4" />
+            Não encontrou? Fale com a gente
+          </Link>
         </div>
       )}
     </section>

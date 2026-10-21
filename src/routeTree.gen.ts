@@ -9,49 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as StreamingRouteImport } from './routes/streaming'
-import { Route as SteamRouteImport } from './routes/steam'
-import { Route as SobreRouteImport } from './routes/sobre'
-import { Route as RedesSociaisRouteImport } from './routes/redes-sociais'
-import { Route as Ps5RouteImport } from './routes/ps5'
-import { Route as Ps4RouteImport } from './routes/ps4'
-import { Route as PerfilRouteImport } from './routes/perfil'
-import { Route as ComoFuncionaRouteImport } from './routes/como-funciona'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CarrinhoRouteImport } from './routes/carrinho'
+import { Route as ComoFuncionaRouteImport } from './routes/como-funciona'
+import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as Ps4RouteImport } from './routes/ps4'
+import { Route as Ps5RouteImport } from './routes/ps5'
+import { Route as RedesSociaisRouteImport } from './routes/redes-sociais'
+import { Route as SobreRouteImport } from './routes/sobre'
+import { Route as SteamRouteImport } from './routes/steam'
+import { Route as StreamingRouteImport } from './routes/streaming'
+import { Route as SuporteRouteImport } from './routes/suporte'
+import { Route as CheckoutPixRouteImport } from './routes/checkout.pix'
 
-const StreamingRoute = StreamingRouteImport.update({
-  id: '/streaming',
-  path: '/streaming',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SteamRoute = SteamRouteImport.update({
-  id: '/steam',
-  path: '/steam',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SobreRoute = SobreRouteImport.update({
-  id: '/sobre',
-  path: '/sobre',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RedesSociaisRoute = RedesSociaisRouteImport.update({
-  id: '/redes-sociais',
-  path: '/redes-sociais',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const Ps5Route = Ps5RouteImport.update({
-  id: '/ps5',
-  path: '/ps5',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const Ps4Route = Ps4RouteImport.update({
-  id: '/ps4',
-  path: '/ps4',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PerfilRoute = PerfilRouteImport.update({
-  id: '/perfil',
-  path: '/perfil',
+const CarrinhoRoute = CarrinhoRouteImport.update({
+  id: '/carrinho',
+  path: '/carrinho',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComoFuncionaRoute = ComoFuncionaRouteImport.update({
@@ -59,14 +37,55 @@ const ComoFuncionaRoute = ComoFuncionaRouteImport.update({
   path: '/como-funciona',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Ps4Route = Ps4RouteImport.update({
+  id: '/ps4',
+  path: '/ps4',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Ps5Route = Ps5RouteImport.update({
+  id: '/ps5',
+  path: '/ps5',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RedesSociaisRoute = RedesSociaisRouteImport.update({
+  id: '/redes-sociais',
+  path: '/redes-sociais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SteamRoute = SteamRouteImport.update({
+  id: '/steam',
+  path: '/steam',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StreamingRoute = StreamingRouteImport.update({
+  id: '/streaming',
+  path: '/streaming',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuporteRoute = SuporteRouteImport.update({
+  id: '/suporte',
+  path: '/suporte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutPixRoute = CheckoutPixRouteImport.update({
+  id: '/checkout/pix',
+  path: '/checkout/pix',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/carrinho': typeof CarrinhoRoute
   '/como-funciona': typeof ComoFuncionaRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
@@ -75,9 +94,12 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
+  '/suporte': typeof SuporteRoute
+  '/checkout/pix': typeof CheckoutPixRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/carrinho': typeof CarrinhoRoute
   '/como-funciona': typeof ComoFuncionaRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
@@ -86,10 +108,13 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
+  '/suporte': typeof SuporteRoute
+  '/checkout/pix': typeof CheckoutPixRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/carrinho': typeof CarrinhoRoute
   '/como-funciona': typeof ComoFuncionaRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
@@ -98,11 +123,14 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
+  '/suporte': typeof SuporteRoute
+  '/checkout/pix': typeof CheckoutPixRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/carrinho'
     | '/como-funciona'
     | '/perfil'
     | '/ps4'
@@ -111,9 +139,12 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/steam'
     | '/streaming'
+    | '/suporte'
+    | '/checkout/pix'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/carrinho'
     | '/como-funciona'
     | '/perfil'
     | '/ps4'
@@ -122,9 +153,12 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/steam'
     | '/streaming'
+    | '/suporte'
+    | '/checkout/pix'
   id:
     | '__root__'
     | '/'
+    | '/carrinho'
     | '/como-funciona'
     | '/perfil'
     | '/ps4'
@@ -133,10 +167,13 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/steam'
     | '/streaming'
+    | '/suporte'
+    | '/checkout/pix'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CarrinhoRoute: typeof CarrinhoRoute
   ComoFuncionaRoute: typeof ComoFuncionaRoute
   PerfilRoute: typeof PerfilRoute
   Ps4Route: typeof Ps4Route
@@ -145,57 +182,24 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   SteamRoute: typeof SteamRoute
   StreamingRoute: typeof StreamingRoute
+  SuporteRoute: typeof SuporteRoute
+  CheckoutPixRoute: typeof CheckoutPixRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/streaming': {
-      id: '/streaming'
-      path: '/streaming'
-      fullPath: '/streaming'
-      preLoaderRoute: typeof StreamingRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/steam': {
-      id: '/steam'
-      path: '/steam'
-      fullPath: '/steam'
-      preLoaderRoute: typeof SteamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sobre': {
-      id: '/sobre'
-      path: '/sobre'
-      fullPath: '/sobre'
-      preLoaderRoute: typeof SobreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/redes-sociais': {
-      id: '/redes-sociais'
-      path: '/redes-sociais'
-      fullPath: '/redes-sociais'
-      preLoaderRoute: typeof RedesSociaisRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ps5': {
-      id: '/ps5'
-      path: '/ps5'
-      fullPath: '/ps5'
-      preLoaderRoute: typeof Ps5RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ps4': {
-      id: '/ps4'
-      path: '/ps4'
-      fullPath: '/ps4'
-      preLoaderRoute: typeof Ps4RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/perfil': {
-      id: '/perfil'
-      path: '/perfil'
-      fullPath: '/perfil'
-      preLoaderRoute: typeof PerfilRouteImport
+    '/carrinho': {
+      id: '/carrinho'
+      path: '/carrinho'
+      fullPath: '/carrinho'
+      preLoaderRoute: typeof CarrinhoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/como-funciona': {
@@ -205,11 +209,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComoFuncionaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ps4': {
+      id: '/ps4'
+      path: '/ps4'
+      fullPath: '/ps4'
+      preLoaderRoute: typeof Ps4RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ps5': {
+      id: '/ps5'
+      path: '/ps5'
+      fullPath: '/ps5'
+      preLoaderRoute: typeof Ps5RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/redes-sociais': {
+      id: '/redes-sociais'
+      path: '/redes-sociais'
+      fullPath: '/redes-sociais'
+      preLoaderRoute: typeof RedesSociaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/steam': {
+      id: '/steam'
+      path: '/steam'
+      fullPath: '/steam'
+      preLoaderRoute: typeof SteamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/streaming': {
+      id: '/streaming'
+      path: '/streaming'
+      fullPath: '/streaming'
+      preLoaderRoute: typeof StreamingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suporte': {
+      id: '/suporte'
+      path: '/suporte'
+      fullPath: '/suporte'
+      preLoaderRoute: typeof SuporteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/pix': {
+      id: '/checkout/pix'
+      path: '/checkout/pix'
+      fullPath: '/checkout/pix'
+      preLoaderRoute: typeof CheckoutPixRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -217,6 +277,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CarrinhoRoute: CarrinhoRoute,
   ComoFuncionaRoute: ComoFuncionaRoute,
   PerfilRoute: PerfilRoute,
   Ps4Route: Ps4Route,
@@ -225,6 +286,8 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   SteamRoute: SteamRoute,
   StreamingRoute: StreamingRoute,
+  SuporteRoute: SuporteRoute,
+  CheckoutPixRoute: CheckoutPixRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

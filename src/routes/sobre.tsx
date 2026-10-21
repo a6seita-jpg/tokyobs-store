@@ -15,7 +15,7 @@ export const Route = createFileRoute("/sobre")({
 
 const FEATURES = [
   { icon: Package, title: "Variedade de Produtos", desc: "Físicos, digitais, gamer, streaming — buscamos pra você." },
-  { icon: Headphones, title: "24h Suporte", desc: "Atendimento humano via WhatsApp, sempre disponível." },
+  { icon: Headphones, title: "24h Suporte", desc: "Atendimento humano pelo site, sempre disponível." },
   { icon: ShieldCheck, title: "100% Confiável", desc: "Transparência e garantia TOKYOBS em todas as vendas." },
 ];
 
@@ -37,7 +37,7 @@ function AboutPage() {
         <p>
           Somos confiáveis e prezamos pelo compromisso. Cada cliente é tratado com transparência
           e respeito. Trabalhamos com diversos produtos digitais e físicos, entrega rápida e
-          suporte 24h via WhatsApp.
+          suporte 24h pelo site.
         </p>
         <p>
           Nossa missão é simplificar sua busca. Se você precisa de algo específico, fale conosco.
