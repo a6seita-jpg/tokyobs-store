@@ -18,7 +18,7 @@ const NAV: NavItem[] = [
 
 export function Header() {
   const { theme, toggle } = useTheme();
-  const { user, isGuest, isAdmin, openLogin, logout } = useAuth();
+  const { user, isGuest, isAdmin, openLogin, loginAsGuest, logout } = useAuth();
   const { totalCount, openCart, bumpKey } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [bump, setBump] = useState(false);
@@ -183,7 +183,7 @@ export function Header() {
                   </p>
                 ) : (
                   <button
-                    onClick={() => { setMobileOpen(false); openLogin(); }}
+                    onClick={() => { setMobileOpen(false); loginAsGuest(); }}
                     className="h-11 rounded-full border border-border text-sm text-foreground/80 hover:border-primary transition"
                   >
                     Entrar como Convidado
