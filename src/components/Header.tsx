@@ -18,7 +18,7 @@ const NAV: NavItem[] = [
 
 export function Header() {
   const { theme, toggle } = useTheme();
-  const { user, isGuest, openLogin, logout } = useAuth();
+  const { user, isGuest, isAdmin, openLogin, loginAsGuest, logout } = useAuth();
   const { totalCount, openCart, bumpKey } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [bump, setBump] = useState(false);
@@ -53,6 +53,15 @@ export function Header() {
               {item.label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="relative text-primary hover:text-primary/80 transition-colors font-medium"
+              activeProps={{ className: "text-primary after:content-[''] after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:bg-primary" }}
+            >
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -136,7 +145,10 @@ export function Header() {
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-border bg-background ink-wash-enter">
+        <div
+          className="lg:hidden border-t border-border bg-background ink-wash-enter overflow-y-auto overscroll-contain"
+          style={{ maxHeight: "calc(100dvh - 4rem)" }}
+        >
           <nav className="container-tk py-4 flex flex-col gap-3">
             {NAV.map((item) => (
               <Link
@@ -148,13 +160,36 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
-            {!user && !isGuest && (
-              <button
-                onClick={() => { setMobileOpen(false); openLogin(); }}
-                className="mt-2 h-10 rounded-full bg-primary text-primary-foreground"
+            {isAdmin && (
+              <Link
+                to="/admin"
+                onClick={() => setMobileOpen(false)}
+                className="text-base py-2 border-b border-border/50 text-primary font-medium"
               >
-                Entrar / Cadastrar
-              </button>
+                Painel Admin
+              </Link>
+            )}
+            {!user && (
+              <div className="mt-2 flex flex-col gap-2 pb-2">
+                <button
+                  onClick={() => { setMobileOpen(false); openLogin(); }}
+                  className="h-11 rounded-full bg-primary text-primary-foreground font-semibold"
+                >
+                  Entrar / Cadastrar
+                </button>
+                {isGuest ? (
+                  <p className="text-center text-xs text-muted-foreground">
+                    Você está como convidado — entre com sua conta ou admin.
+                  </p>
+                ) : (
+                  <button
+                    onClick={() => { setMobileOpen(false); loginAsGuest(); }}
+                    className="h-11 rounded-full border border-border text-sm text-foreground/80 hover:border-primary transition"
+                  >
+                    Entrar como Convidado
+                  </button>
+                )}
+              </div>
             )}
           </nav>
         </div>
