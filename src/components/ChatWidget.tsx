@@ -12,7 +12,7 @@ import { getOrCreateThread, subscribeChat, unreadForUser } from "@/lib/chat";
  */
 export function ChatWidget() {
   const { hydrated, user } = useAuth();
-  const { open, target, close } = useChatWidget();
+  const { open, target, close, openSupport } = useChatWidget();
   const [unread, setUnread] = useState(0);
 
   const email = user?.email ?? "convidado@tokyobs.store";
@@ -38,7 +38,7 @@ export function ChatWidget() {
     <>
       {/* Botão flutuante */}
       <button
-        onClick={() => (open ? close() : undefined)}
+        onClick={() => (open ? close() : openSupport())}
         aria-label={open ? "Fechar chat" : "Abrir chat de suporte"}
         className="fixed bottom-5 right-5 z-[70] h-14 w-14 grid place-items-center rounded-full shadow-lg hover:scale-105 transition"
         style={{ background: "#e63946", color: "#fff" }}
@@ -51,7 +51,6 @@ export function ChatWidget() {
         )}
       </button>
       {/* Quando fechado, o clique abre o suporte (handler separado p/ não fechar no mesmo clique) */}
-      {!open && <OpenTrigger />}
 
       <AnimatePresence>
         {open && (
@@ -81,19 +80,5 @@ export function ChatWidget() {
         )}
       </AnimatePresence>
     </>
-  );
-}
-
-// Clique no botão quando fechado → abre suporte.
-function OpenTrigger() {
-  const { openSupport } = useChatWidget();
-  return (
-    <button
-      onClick={openSupport}
-      aria-hidden
-      tabIndex={-1}
-      className="fixed bottom-5 right-5 z-[69] h-14 w-14 rounded-full"
-      style={{ pointerEvents: "none" }}
-    />
   );
 }
