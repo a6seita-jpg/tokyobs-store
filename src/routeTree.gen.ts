@@ -17,6 +17,7 @@ import { Route as Ps5RouteImport } from './routes/ps5'
 import { Route as Ps4RouteImport } from './routes/ps4'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as ComoFuncionaRouteImport } from './routes/como-funciona'
+import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as IndexRouteImport } from './routes/index'
 
 const StreamingRoute = StreamingRouteImport.update({
@@ -59,6 +60,11 @@ const ComoFuncionaRoute = ComoFuncionaRouteImport.update({
   path: '/como-funciona',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CarrinhoRoute = CarrinhoRouteImport.update({
+  id: '/carrinho',
+  path: '/carrinho',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -67,6 +73,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/carrinho': typeof CarrinhoRoute
   '/como-funciona': typeof ComoFuncionaRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/carrinho': typeof CarrinhoRoute
   '/como-funciona': typeof ComoFuncionaRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/carrinho': typeof CarrinhoRoute
   '/como-funciona': typeof ComoFuncionaRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/carrinho'
     | '/como-funciona'
     | '/perfil'
     | '/ps4'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/carrinho'
     | '/como-funciona'
     | '/perfil'
     | '/ps4'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/carrinho'
     | '/como-funciona'
     | '/perfil'
     | '/ps4'
@@ -137,6 +149,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CarrinhoRoute: typeof CarrinhoRoute
   ComoFuncionaRoute: typeof ComoFuncionaRoute
   PerfilRoute: typeof PerfilRoute
   Ps4Route: typeof Ps4Route
@@ -205,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComoFuncionaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/carrinho': {
+      id: '/carrinho'
+      path: '/carrinho'
+      fullPath: '/carrinho'
+      preLoaderRoute: typeof CarrinhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -217,6 +237,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CarrinhoRoute: CarrinhoRoute,
   ComoFuncionaRoute: ComoFuncionaRoute,
   PerfilRoute: PerfilRoute,
   Ps4Route: Ps4Route,
