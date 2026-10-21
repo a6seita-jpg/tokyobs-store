@@ -19,6 +19,7 @@ import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as ComoFuncionaRouteImport } from './routes/como-funciona'
 import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckoutPixRouteImport } from './routes/checkout.pix'
 
 const StreamingRoute = StreamingRouteImport.update({
   id: '/streaming',
@@ -70,6 +71,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutPixRoute = CheckoutPixRouteImport.update({
+  id: '/checkout/pix',
+  path: '/checkout/pix',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
+  '/checkout/pix': typeof CheckoutPixRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
+  '/checkout/pix': typeof CheckoutPixRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/steam': typeof SteamRoute
   '/streaming': typeof StreamingRoute
+  '/checkout/pix': typeof CheckoutPixRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/steam'
     | '/streaming'
+    | '/checkout/pix'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/steam'
     | '/streaming'
+    | '/checkout/pix'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/steam'
     | '/streaming'
+    | '/checkout/pix'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +170,7 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   SteamRoute: typeof SteamRoute
   StreamingRoute: typeof StreamingRoute
+  CheckoutPixRoute: typeof CheckoutPixRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/pix': {
+      id: '/checkout/pix'
+      path: '/checkout/pix'
+      fullPath: '/checkout/pix'
+      preLoaderRoute: typeof CheckoutPixRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -246,6 +266,7 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   SteamRoute: SteamRoute,
   StreamingRoute: StreamingRoute,
+  CheckoutPixRoute: CheckoutPixRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

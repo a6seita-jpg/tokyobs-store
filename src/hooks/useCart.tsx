@@ -89,18 +89,3 @@ export const useCart = () => useContext(Ctx);
 
 /** Format helper shared with components. */
 export const fmtBRL = (n: number) => `R$ ${n.toFixed(2).replace(".", ",")}`;
-
-/** Build the WhatsApp finalize link from a cart. */
-const PHONE = "5573988810368";
-export function buildCartWhatsAppUrl(items: CartItem[], total: number) {
-  const lines = items.map(
-    (i) => `${i.quantity}x ${i.product} - ${i.variation} - ${fmtBRL(i.unitPrice * i.quantity)}`,
-  );
-  const msg =
-    `OLÁ TOKYOBS\n\n` +
-    `Meu pedido:\n` +
-    `${lines.join("\n")}\n\n` +
-    `Total: ${fmtBRL(total)}\n` +
-    `Forma de pagamento: Pix`;
-  return `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
-}
