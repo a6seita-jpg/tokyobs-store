@@ -28,15 +28,15 @@ function brl(v: number) {
 }
 
 function AdminPage() {
-  const { user, isAdmin, isGuest, openLogin } = useAuth();
+  const { user, isAdmin, isGuest, openLogin, requireAuth } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<OrderStatus | "todos">("todos");
   const [comprovante, setComprovante] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user && !isGuest) openLogin("Acesso restrito ao administrador");
-  }, [user, isGuest, openLogin]);
+    if (!user && !isGuest) requireAuth("Acesso restrito ao administrador");
+  }, [user, isGuest, requireAuth]);
 
   useEffect(() => {
     if (isAdmin) setOrders(listOrders());
@@ -61,7 +61,7 @@ function AdminPage() {
           Entre com a conta de administrador para ver o painel.
         </p>
         <button
-          onClick={() => openLogin("Acesso restrito ao administrador")}
+          onClick={() => requireAuth("Acesso restrito ao administrador")}
           className="mt-6 h-11 px-8 rounded-full bg-primary text-primary-foreground font-semibold hover:opacity-90"
         >
           Fazer login
@@ -161,8 +161,8 @@ function AdminPage() {
               <ul className="mt-3 text-sm text-foreground/80 flex flex-col gap-1">
                 {o.items.map((it, i) => (
                   <li key={i} className="flex justify-between gap-4">
-                    <span>{it.qty}× {it.name}{it.variant ? ` — ${it.variant}` : ""}</span>
-                    <span>{brl(it.price * it.qty)}</span>
+                    <span>{it.quantity}× {it.product}{it.variation ? ` — ${it.variation}` : ""}</span>
+                    <span>{brl(it.unitPrice * it.quantity)}</span>
                   </li>
                 ))}
               </ul>
