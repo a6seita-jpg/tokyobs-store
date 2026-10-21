@@ -2,9 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { QRCodeSVG } from "qrcode.react";
-import { Check, Copy, Clock, ShieldCheck, Upload, X } from "lucide-react";
+import { Check, Copy, Clock, ShieldCheck, Upload, X, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useCart, fmtBRL } from "@/hooks/useCart";
+import { useChatWidget } from "@/hooks/useChatWidget";
 import { buildPixPayload, PIX_KEY } from "@/lib/pix";
 import { getOrder, updateOrder, type Order } from "@/lib/orders";
 import {
@@ -86,6 +87,7 @@ function CheckoutPixPage() {
   const { order: orderId } = Route.useSearch();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { openOrder } = useChatWidget();
   const [order, setOrder] = useState<Order | null>(() => (orderId ? getOrder(orderId) : null));
   const [modalOpen, setModalOpen] = useState(false);
   const [expiredOpen, setExpiredOpen] = useState(false);
@@ -187,12 +189,22 @@ function CheckoutPixPage() {
               <div>Total: <span className="font-medium text-neutral-900">{fmtBRL(order.total)}</span></div>
               <div>Status: <span className="font-medium" style={{ color: "#f59e0b" }}>Pagamento em análise</span></div>
             </div>
-            <Link
-              to="/"
-              className="mt-6 inline-flex items-center justify-center h-11 px-8 rounded-full bg-neutral-900 text-white text-sm hover:bg-neutral-700 transition"
-            >
-              Voltar para a loja
-            </Link>
+            <div className="mt-6 flex flex-col gap-2">
+              <button
+                onClick={() => openOrder(order.id)}
+                className="inline-flex items-center justify-center gap-2 h-11 px-8 rounded-full text-sm font-medium text-white hover:opacity-90 transition"
+                style={{ background: "#e63946" }}
+              >
+                <MessageCircle className="h-4 w-4" />
+                Falar sobre este pedido
+              </button>
+              <Link
+                to="/"
+                className="inline-flex items-center justify-center h-11 px-8 rounded-full bg-neutral-900 text-white text-sm hover:bg-neutral-700 transition"
+              >
+                Voltar para a loja
+              </Link>
+            </div>
           </div>
         ) : (
           /* ---- Tela de pagamento ---- */
@@ -263,6 +275,13 @@ function CheckoutPixPage() {
                 style={{ background: "#e63946" }}
               >
                 Já realizei o pagamento
+              </button>
+              <button
+                onClick={() => openOrder(order.id)}
+                className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-full border border-neutral-300 text-sm text-neutral-700 hover:border-neutral-500 transition"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Falar sobre este pedido
               </button>
               <Link
                 to="/"
