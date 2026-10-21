@@ -20,6 +20,8 @@ import { LoginModal } from "@/components/LoginModal";
 import { CornerDragons } from "@/components/CornerDragons";
 import { EntryGate } from "@/components/EntryGate";
 import { CartDrawer } from "@/components/CartDrawer";
+import { ChatWidgetProvider } from "@/hooks/useChatWidget";
+import { ChatWidget } from "@/components/ChatWidget";
 import { Toaster } from "sonner";
 
 function NotFoundComponent() {
@@ -121,6 +123,7 @@ function RootComponent() {
       <ThemeProvider>
         <AuthProvider>
           <CartProvider>
+           <ChatWidgetProvider>
             <EntryGate>
               <div className="min-h-screen flex flex-col tk-bg">
                 <Header />
@@ -130,10 +133,12 @@ function RootComponent() {
                 <Footer />
                 <LoginModal />
                 <CartDrawer />
+                <ChatWidget />
                 <CornerDragons />
                 <Toaster position="top-right" theme="dark" toastOptions={{ style: { background: "#141414", border: "1px solid #2a2a2a", color: "#fff" } }} />
               </div>
             </EntryGate>
+           </ChatWidgetProvider>
           </CartProvider>
         </AuthProvider>
       </ThemeProvider>
