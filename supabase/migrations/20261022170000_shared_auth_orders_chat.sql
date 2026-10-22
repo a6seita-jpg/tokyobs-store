@@ -219,3 +219,55 @@ begin
 exception when duplicate_object then null;
 when undefined_object then null;
 end $$;
+
+
+create or replace function public.send_chat_message(
+  p_thread_id uuid,
+  p_body text,
+  p_author text default ''
+) returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_role text;
+  v_owner uuid;
+begin
+  if auth.uid() is null then raise exception 'Authentication required'; end if;
+  if char_length(trim(p_body)) < 1 or char_length(p_body) > 5000 then raise exception 'Invalid message'; end if;
+  select owner_id into v_owner from public.chat_threads where id = p_thread_id;
+  if not found then raise exception 'Conversation not found'; end if;
+  select role into v_role from public.profiles where id = auth.uid();
+  if v_role = 'admin' then
+    insert into public.chat_messages(thread_id, sender_id, sender_role, author, body)
+    values (p_thread_id, auth.uid(), 'admin', coalesce(p_author, ''), trim(p_body));
+    update public.chat_threads set unread_for_user = unread_for_user + 1, updated_at = now() where id = p_thread_id;
+  elsif v_owner = auth.uid() then
+    insert into public.chat_messages(thread_id, sender_id, sender_role, author, body)
+    values (p_thread_id, auth.uid(), 'user', coalesce(p_author, ''), trim(p_body));
+    update public.chat_threads set unread_for_admin = unread_for_admin + 1, updated_at = now() where id = p_thread_id;
+  else
+    raise exception 'Not allowed';
+  end if;
+end;
+$$;
+revoke all on function public.send_chat_message(uuid,text,text) from public;
+grant execute on function public.send_chat_message(uuid,text,text) to authenticated;
+
+create or replace function public.mark_chat_read(p_thread_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  update public.chat_threads
+  set unread_for_user = case when owner_id = auth.uid() then 0 else unread_for_user end,
+      unread_for_admin = case when (select public.is_admin()) then 0 else unread_for_admin end
+  where id = p_thread_id and (owner_id = auth.uid() or (select public.is_admin()));
+  if not found then raise exception 'Not allowed'; end if;
+end;
+$$;
+revoke all on function public.mark_chat_read(uuid) from public;
+grant execute on function public.mark_chat_read(uuid) to authenticated;
