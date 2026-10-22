@@ -5,33 +5,17 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const FAQ = [
-  {
-    q: "Como funciona a entrega?",
-    a: "Entrega via conta compartilhada ou ativação. Você recebe login/senha em até 15min após confirmação.",
-  },
-  {
-    q: "Quais formas de pagamento?",
-    a: "Pix com QR Code e código copia-e-cola gerados na hora, direto no site.",
-  },
-  {
-    q: "Os jogos são originais?",
-    a: "Sim, 100% mídia digital original. Garantia TOKYOBS.",
-  },
-  {
-    q: "Funciona no meu console?",
-    a: "Confirmamos compatibilidade pelo suporte do site antes da venda.",
-  },
-  {
-    q: "Posso parcelar?",
-    a: "Fale com a gente pelo suporte para opções de parcelamento.",
-  },
-];
+import { FAQ_ITEMS } from "@/lib/faq";
+import { Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/PremiumMotion";
+
+const FAQ = FAQ_ITEMS.slice(0, 5);
 
 export function FaqSection() {
   return (
     <section className="container-tk py-16 border-t border-border">
-      <div className="max-w-2xl mx-auto">
+      <Reveal className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 text-xs tracking-[0.3em] uppercase text-muted-foreground">
             <span className="seal" /> FAQ
@@ -46,7 +30,8 @@ export function FaqSection() {
             </AccordionItem>
           ))}
         </Accordion>
-      </div>
+        <div className="text-center mt-6"><Button asChild variant="link"><Link to="/faq">Todas as perguntas frequentes</Link></Button></div>
+      </Reveal>
     </section>
   );
 }
