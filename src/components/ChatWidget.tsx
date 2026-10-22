@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
  * Montado uma vez na raiz; qualquer página abre via useChatWidget().
  */
 export function ChatWidget() {
-  const { hydrated, user } = useAuth();
+  const { hydrated, user, openLogin } = useAuth();
   const { open, target, close, openSupport } = useChatWidget();
   const [unread, setUnread] = useState(0);
   const [threadId, setThreadId] = useState<string | null>(null);
@@ -32,12 +32,13 @@ export function ChatWidget() {
 
   useEffect(() => {
     if (!hydrated || !open) { setThreadId(null); return; }
+    if (!user) { setThreadId(null); openLogin(); close(); return; }
     let active = true;
     void getOrCreateThread({ kind: target.kind, ownerEmail: email, ownerName: name, orderId: target.kind === "order" ? target.orderId : undefined })
       .then((thread) => { if (active) setThreadId(thread.id); })
       .catch(() => setThreadId(null));
     return () => { active = false; };
-  }, [hydrated, open, target, email, name]);
+  }, [hydrated, open, target, email, name, user, openLogin, close]);
 
   if (!hydrated) return null;
 
