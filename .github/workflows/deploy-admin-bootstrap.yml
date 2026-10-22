@@ -45,19 +45,14 @@ jobs:
         run: |
           npx --yes supabase@latest functions deploy admin-bootstrap --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
 
-      - name: Promote the target account once
+      - name: Promote target account to admin once
         env:
           ADMIN_BOOTSTRAP_SECRET: ${{ secrets.ADMIN_BOOTSTRAP_SECRET }}
         run: |
-          response_file="$(mktemp)"
-          status="$(curl --silent --show-error --output "$response_file" --write-out "%{http_code}" \
-            --request POST "https://ucfyorkuhndbtsrpfozb.supabase.co/functions/v1/admin-bootstrap" \
+          response="$(curl --silent --show-error --fail-with-body \
+            --request POST \
             --header "x-admin-bootstrap-secret: $ADMIN_BOOTSTRAP_SECRET" \
-            --header "Content-Type: application/json")"
-          cat "$response_file"
-          echo
-          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
-            echo "Bootstrap request failed with HTTP $status"
-            exit 1
-          fi
-          node -e 'const fs=require("fs"); const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if (r.success !== true) process.exit(1)' "$response_file"
+            --header "Content-Type: application/json" \
+            "https://ucfyorkuhndbtsrpfozb.supabase.co/functions/v1/admin-bootstrap")"
+          echo "$response"
+          node -e 'const r=JSON.parse(process.argv[1]); if (r.success !== true || r.role !== "admin") process.exit(1)' "$response"
