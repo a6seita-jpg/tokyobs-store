@@ -83,12 +83,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: { data: { nickname: nickname.trim(), avatar } },
     });
     if (error) return { ok: false, error: authError(error) };
-    if (data.user && data.session) {
-      const { error: profileError } = await supabase.from("profiles").upsert({
-        id: data.user.id, email: data.user.email || email, nickname: nickname.trim(), avatar, role: "user",
-      }, { onConflict: "id" });
-      if (profileError) return { ok: false, error: "Conta criada, mas não foi possível salvar o perfil. Tente entrar novamente." };
-    }
     if (data.user && !data.session) return { ok: false, error: "Conta criada! Confirme seu email para entrar." };
     return { ok: true };
   };
