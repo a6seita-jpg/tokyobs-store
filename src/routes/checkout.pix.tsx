@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { useCart, fmtBRL } from "@/hooks/useCart";
 import { useChatWidget } from "@/hooks/useChatWidget";
 import { buildPixPayload, PIX_KEY } from "@/lib/pix";
-import { getOrder, updateOrder, type Order } from "@/lib/orders";\nimport { useAuth } from "@/hooks/useAuth";
+import { getOrder, updateOrder, type Order } from "@/lib/orders";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Accordion,
   AccordionContent,
@@ -86,7 +87,8 @@ function CopyField({ label, value, multiline }: { label: string; value: string; 
 function CheckoutPixPage() {
   const { order: orderId } = Route.useSearch();
   const navigate = useNavigate();
-  const { addItem } = useCart();\n  const { user } = useAuth();
+  const { addItem } = useCart();
+  const { user } = useAuth();
   const { openOrder } = useChatWidget();
   const [order, setOrder] = useState<Order | null>(null);
   useEffect(() => {
@@ -100,7 +102,15 @@ function CheckoutPixPage() {
   const [observacao, setObservacao] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {\n    let active = true;\n    if (!orderId || !user) { setOrder(null); setOrderLoaded(true); return; }\n    setOrderLoaded(false);\n    void getOrder(orderId).then(value => { if(active) setOrder(value); }).catch(() => { if(active) setOrder(null); }).finally(() => { if(active) setOrderLoaded(true); });\n    return () => { active = false; };\n  }, [orderId, user]);\n\n  const waiting = order?.status === "aguardando_pagamento";
+  useEffect(() => {
+    let active = true;
+    if (!orderId || !user) { setOrder(null); setOrderLoaded(true); return; }
+    setOrderLoaded(false);
+    void getOrder(orderId).then(value => { if(active) setOrder(value); }).catch(() => { if(active) setOrder(null); }).finally(() => { if(active) setOrderLoaded(true); });
+    return () => { active = false; };
+  }, [orderId, user]);
+
+  const waiting = order?.status === "aguardando_pagamento";
   const remaining = useCountdown(order?.expiresAt ?? 0, !!waiting);
 
   const payload = useMemo(
@@ -120,7 +130,9 @@ function CheckoutPixPage() {
     }).catch(() => toast.error("Não foi possível atualizar o pedido expirado."));
   }, [remaining, order, addItem]);
 
-  if (!orderLoaded) return <main className="container-tk pt-28 pb-20 text-center">Carregando pedido...</main>;\n\n  if (!order) {
+  if (!orderLoaded) return <main className="container-tk pt-28 pb-20 text-center">Carregando pedido...</main>;
+
+  if (!order) {
     return (
       <main className="container-tk pt-28 pb-20 text-center">
         <h1 className="text-3xl font-extralight mb-4">Pedido não encontrado</h1>
