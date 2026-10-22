@@ -11,12 +11,20 @@ create table if not exists public.profiles (
 alter table public.profiles enable row level security;
 revoke all on public.profiles from anon;
 grant select, insert, update on public.profiles to authenticated;
+create or replace function public.is_tokyobs_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $ select exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'); $;
+revoke all on function public.is_tokyobs_admin() from public;
+grant execute on function public.is_tokyobs_admin() to authenticated;
+
 drop policy if exists "Profiles are readable by owner or admin" on public.profiles;
 create policy "Profiles are readable by owner or admin" on public.profiles
   for select to authenticated using (
-    id = (select auth.uid()) or exists (
-      select 1 from public.profiles me where me.id = (select auth.uid()) and me.role = 'admin'
-    )
+    id = (select auth.uid()) or (select public.is_tokyobs_admin())
   );
 drop policy if exists "Users can create their own basic profile" on public.profiles;
 create policy "Users can create their own basic profile" on public.profiles
@@ -42,18 +50,14 @@ grant select, insert, update on public.tokyobs_chats to authenticated;
 drop policy if exists "Buyers read their own orders" on public.tokyobs_orders;
 create policy "Buyers read their own orders" on public.tokyobs_orders
   for select to authenticated using (
-    user_id = (select auth.uid()) or exists (
-      select 1 from public.profiles p where p.id = (select auth.uid()) and p.role = 'admin'
-    )
+    user_id = (select auth.uid()) or (select public.is_tokyobs_admin())
   );
 drop policy if exists "Buyers create their own orders" on public.tokyobs_orders;
 create policy "Buyers create their own orders" on public.tokyobs_orders
   for insert to authenticated with check (user_id = (select auth.uid()));
 drop policy if exists "Admins update orders" on public.tokyobs_orders;
 create policy "Admins update orders" on public.tokyobs_orders
-  for update to authenticated using (exists (
-    select 1 from public.profiles p where p.id = (select auth.uid()) and p.role = 'admin'
-  )) with check (exists (
+  for update to authenticated using ((select public.is_tokyobs_admin())) with check (exists (
     select 1 from public.profiles p where p.id = (select auth.uid()) and p.role = 'admin'
   ));
 
