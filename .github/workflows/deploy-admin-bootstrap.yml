@@ -18,16 +18,17 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Apply database migrations
+      - name: Validate required secrets
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-          SUPABASE_PROJECT_REF: ucfyorkuhndbtsrpfozb
+          ADMIN_BOOTSTRAP_SECRET: ${{ secrets.ADMIN_BOOTSTRAP_SECRET }}
         run: |
           test -n "$SUPABASE_ACCESS_TOKEN" || (echo "Missing GitHub Actions secret SUPABASE_ACCESS_TOKEN" && exit 1)
-          test -n "$SUPABASE_DB_PASSWORD" || (echo "Missing GitHub Actions secret SUPABASE_DB_PASSWORD" && exit 1)
-          npx --yes supabase@latest link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
-          npx --yes supabase@latest db push --linked
+          test -n "$ADMIN_BOOTSTRAP_SECRET" || (echo "Missing GitHub Actions secret ADMIN_BOOTSTRAP_SECRET" && exit 1)
+          if [ "${#ADMIN_BOOTSTRAP_SECRET}" -lt 32 ]; then
+            echo "ADMIN_BOOTSTRAP_SECRET must be at least 32 characters"
+            exit 1
+          fi
 
       - name: Configure bootstrap secret
         env:
@@ -35,11 +36,6 @@ jobs:
           ADMIN_BOOTSTRAP_SECRET: ${{ secrets.ADMIN_BOOTSTRAP_SECRET }}
           SUPABASE_PROJECT_REF: ucfyorkuhndbtsrpfozb
         run: |
-          test -n "$ADMIN_BOOTSTRAP_SECRET" || (echo "Missing GitHub Actions secret ADMIN_BOOTSTRAP_SECRET" && exit 1)
-          if [ "${#ADMIN_BOOTSTRAP_SECRET}" -lt 32 ]; then
-            echo "ADMIN_BOOTSTRAP_SECRET must be at least 32 characters"
-            exit 1
-          fi
           npx --yes supabase@latest secrets set "ADMIN_BOOTSTRAP_SECRET=$ADMIN_BOOTSTRAP_SECRET" --project-ref "$SUPABASE_PROJECT_REF"
 
       - name: Deploy one-time bootstrap function
@@ -48,3 +44,20 @@ jobs:
           SUPABASE_PROJECT_REF: ucfyorkuhndbtsrpfozb
         run: |
           npx --yes supabase@latest functions deploy admin-bootstrap --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+
+      - name: Promote the target account once
+        env:
+          ADMIN_BOOTSTRAP_SECRET: ${{ secrets.ADMIN_BOOTSTRAP_SECRET }}
+        run: |
+          response_file="$(mktemp)"
+          status="$(curl --silent --show-error --output "$response_file" --write-out "%{http_code}" \
+            --request POST "https://ucfyorkuhndbtsrpfozb.supabase.co/functions/v1/admin-bootstrap" \
+            --header "x-admin-bootstrap-secret: $ADMIN_BOOTSTRAP_SECRET" \
+            --header "Content-Type: application/json")"
+          cat "$response_file"
+          echo
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "Bootstrap request failed with HTTP $status"
+            exit 1
+          fi
+          node -e 'const fs=require("fs"); const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if (r.success !== true) process.exit(1)' "$response_file"
