@@ -88,7 +88,12 @@ function CheckoutPixPage() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { openOrder } = useChatWidget();
-  const [order, setOrder] = useState<Order | null>(() => (orderId ? getOrder(orderId) : null));
+  const [order, setOrder] = useState<Order | null>(null);
+  useEffect(() => {
+    let active = true;
+    if (orderId) void getOrder(orderId).then((value) => { if (active) setOrder(value); }).catch(() => { if (active) setOrder(null); });
+    return () => { active = false; };
+  }, [orderId]);
   const [modalOpen, setModalOpen] = useState(false);
   const [expiredOpen, setExpiredOpen] = useState(false);
   const [comprovante, setComprovante] = useState("");
@@ -107,10 +112,12 @@ function CheckoutPixPage() {
   useEffect(() => {
     if (!order || order.status !== "aguardando_pagamento") return;
     if (remaining > 0) return;
-    updateOrder(order.id, { status: "expirado" });
-    order.items.forEach((it) => addItem(it));
-    setOrder({ ...order, status: "expirado" });
-    setExpiredOpen(true);
+    void updateOrder(order.id, { status: "expirado" }).then((updated) => {
+      if (!updated) return;
+      order.items.forEach((it) => addItem(it));
+      setOrder(updated);
+      setExpiredOpen(true);
+    }).catch(() => toast.error("Não foi possível atualizar o pedido expirado."));
   }, [remaining, order, addItem]);
 
   if (!order) {
@@ -128,19 +135,19 @@ function CheckoutPixPage() {
   const pct = Math.max(0, Math.min(1, remaining / (15 * 60 * 1000)));
   const barColor = pct > 0.5 ? "#22c55e" : pct > 0.2 ? "#f59e0b" : "#ef4444";
 
-  const submitComprovante = () => {
+  const submitComprovante = async () => {
     if (!comprovante.trim()) {
       toast.error("Envie o comprovante (imagem ou link) para continuar.");
       return;
     }
-    const updated = updateOrder(order.id, {
-      status: "em_analise",
-      comprovante: comprovante.trim(),
-      observacao: observacao.trim() || undefined,
-    });
-    if (updated) setOrder(updated);
-    setModalOpen(false);
-    toast.success("Comprovante enviado! Pagamento em análise.");
+    try {
+      const updated = await updateOrder(order.id, {
+        status: "em_analise", comprovante: comprovante.trim(), observacao: observacao.trim() || undefined,
+      });
+      if (updated) setOrder(updated);
+      setModalOpen(false);
+      toast.success("Comprovante enviado! Pagamento em análise.");
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Falha ao enviar comprovante."); }
   };
 
   const onFile = (f: File | undefined) => {
