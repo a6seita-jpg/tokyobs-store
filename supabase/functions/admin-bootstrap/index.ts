@@ -34,29 +34,32 @@ Deno.serve(async (req: Request) => {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  // The email is hardcoded and the role condition makes this a one-way bootstrap:
-  // only an account currently marked as "user" can be promoted.
-  const { data, error } = await supabase
+  const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers({
+    page: 1,
+    perPage: 1000,
+  });
+  if (usersError) return Response.json({ error: "Could not look up target account." }, { status: 500 });
+
+  const target = usersData.users.find((user) => user.email?.toLowerCase() === TARGET_EMAIL);
+  if (!target) return Response.json({ error: "Target account not found." }, { status: 404 });
+
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .update({ role: "admin" })
-    .eq("email", TARGET_EMAIL)
+    .eq("id", target.id)
     .eq("role", "user")
-    .select("email, role")
+    .select("id, role")
     .maybeSingle();
 
-  if (error) return Response.json({ error: "Could not update the target profile." }, { status: 500 });
-  if (data) return Response.json({ success: true, account: data });
-
-  const { data: existing, error: lookupError } = await supabase
-    .from("profiles")
-    .select("email, role")
-    .eq("email", TARGET_EMAIL)
-    .maybeSingle();
-
-  if (lookupError) return Response.json({ error: "Could not verify the target profile." }, { status: 500 });
-  if (!existing) return Response.json({ error: "Target profile not found." }, { status: 404 });
-  if (existing.role === "admin") {
-    return Response.json({ success: true, alreadyAdmin: true, account: existing });
+  if (profileError) {
+    return Response.json({ error: "Could not update profile role.", details: profileError.message }, { status: 500 });
   }
-  return Response.json({ error: "Target profile was not promoted; current role is not eligible." }, { status: 409 });
+  if (!profile) {
+    return Response.json(
+      { error: "No user-role profile was changed. The bootstrap may already have been used, or the profile schema differs." },
+      { status: 409 },
+    );
+  }
+
+  return Response.json({ success: true, account: TARGET_EMAIL, role: profile.role });
 });
