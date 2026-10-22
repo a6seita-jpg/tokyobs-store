@@ -4,6 +4,9 @@ import { Package, Clock, CheckCircle2, AlertTriangle, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { listOrders, updateOrder, STATUS_LABEL, type Order, type OrderStatus } from "@/lib/orders";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { AdminChats } from "@/components/AdminChats";
+import { listThreads, subscribeChat } from "@/lib/chat";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -11,6 +14,10 @@ export const Route = createFileRoute("/admin")({
       { title: "Painel Admin — TOKYOBS" },
       { name: "description", content: "Painel administrativo TOKYOBS: pedidos e estatísticas." },
       { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Painel Admin — TOKYOBS" },
+      { property: "og:description", content: "Pedidos e atendimento TOKYOBS." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AdminPage,
@@ -30,6 +37,8 @@ function brl(v: number) {
 function AdminPage() {
   const { hydrated, user, isAdmin, isGuest, requireAuth } = useAuth();
   const navigate = useNavigate();
+  const [tab, setTab] = useState<"orders" | "chats">("orders");
+  const [unread, setUnread] = useState(0);
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<OrderStatus | "todos">("todos");
   const [comprovante, setComprovante] = useState<string | null>(null);
@@ -40,6 +49,13 @@ function AdminPage() {
 
   useEffect(() => {
     if (isAdmin) setOrders(listOrders());
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const update = () => setUnread(listThreads().reduce((n, t) => n + t.unreadForAdmin, 0));
+    update();
+    return subscribeChat(update);
   }, [isAdmin]);
 
   const stats = useMemo(() => {
@@ -111,6 +127,11 @@ function AdminPage() {
         <span className="text-xs text-muted-foreground">Logado como {user.email}</span>
       </div>
 
+      <div role="tablist" aria-label="Painel administrativo" className="flex gap-2 border-b border-border pb-4 mb-6">
+        <Button role="tab" aria-selected={tab === "orders"} variant={tab === "orders" ? "default" : "ghost"} onClick={() => setTab("orders")}>Pedidos</Button>
+        <Button role="tab" aria-selected={tab === "chats"} variant={tab === "chats" ? "default" : "ghost"} onClick={() => setTab("chats")}>Chats {unread > 0 && <span className="bg-card text-primary rounded-full px-1.5 text-xs">{unread}</span>}</Button>
+      </div>
+      {tab === "chats" ? <AdminChats authorName={user.nickname} /> : <>
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         <StatCard icon={<Package className="h-4 w-4" />} label="Pedidos" value={String(stats.total)} />
@@ -174,7 +195,7 @@ function AdminPage() {
                 <div className="flex flex-wrap gap-2">
                   {o.comprovante && (
                     <button
-                      onClick={() => setComprovante(o.comprovante!)}
+                      onClick={() => setComprovante(o.comprovante ?? null)}
                       className="h-9 px-3 rounded-full text-xs border border-border hover:border-primary transition"
                     >
                       Ver comprovante
@@ -205,6 +226,7 @@ function AdminPage() {
         </div>
       )}
 
+      </>}
       {/* Modal comprovante */}
       {comprovante && (
         <div
