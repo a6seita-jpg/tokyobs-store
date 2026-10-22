@@ -38,21 +38,23 @@ export function LoginModal() {
     }
 
     setLoading(true);
-    const res = mode === "login"
+    const res = await (mode === "login"
       ? login({ email: form.email, password: form.password })
-      : register({ email: form.email, password: form.password, nickname: form.nickname, avatar: "" });
+      : register({ email: form.email, password: form.password, nickname: form.nickname, avatar: "" }));
     setLoading(false);
     if (!res.ok) { setError(res.error || "Erro ao processar"); return; }
     toast.success(mode === "login" ? "Bem-vindo!" : "Conta criada com sucesso!");
     close();
   };
 
-  const onForgot = () => {
+  const onForgot = async () => {
     setError(""); setInfo("");
     if (!form.email) { setError("Digite seu email primeiro"); return; }
-    const res = resetPassword(form.email);
+    setLoading(true);
+    const res = await resetPassword(form.email);
+    setLoading(false);
     if (!res.ok) { setError(res.error || "Erro"); return; }
-    setInfo("Senha resetada para: 123456");
+    setInfo("Enviamos um link de redefinição para seu email, se ele estiver cadastrado.");
   };
 
   return (
