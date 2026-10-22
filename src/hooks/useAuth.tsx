@@ -34,8 +34,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   const loadProfile = async (id: string, email: string, metadata: Record<string, unknown>): Promise<TKUser> => {
-    const { data } = await supabase.from("profiles").select("nickname, avatar, role").eq("id", id).maybeSingle();
+    const { data, error } = await supabase.from("profiles").select("nickname, avatar, role").eq("id", id).maybeSingle();
+    if (error) {
+      console.error("[auth] Falha ao carregar perfil:", error);
+      throw new Error("Não foi possível verificar seu perfil. Saia da conta e entre novamente.");
+    }
     const profile = data as { nickname?: string; avatar?: string; role?: string } | null;
+    if (!profile) {
+      console.error("[auth] Perfil não encontrado para a sessão autenticada:", id);
+      throw new Error("Seu perfil não foi encontrado no banco. Entre novamente ou contate o suporte.");
+    }
     return {
       email,
       nickname: profile?.nickname || String(metadata.nickname || email.split("@")[0]),
@@ -48,13 +56,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let active = true;
     const restore = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user && active) {
-        const profile = await loadProfile(session.user.id, session.user.email || "", session.user.user_metadata || {});
-        if (active) setUser(profile);
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+        if (session?.user && active) {
+          const profile = await loadProfile(session.user.id, session.user.email || "", session.user.user_metadata || {});
+          if (active) setUser(profile);
+        }
+        if (active && localStorage.getItem(GUEST_KEY) === "1") setIsGuest(true);
+      } catch (error) {
+        console.error("[auth] Falha ao restaurar sessão/perfil:", error);
+        if (active) setLoginMessage(error instanceof Error ? error.message : "Falha ao restaurar sua sessão.");
+      } finally {
+        if (active) setHydrated(true);
       }
-      if (active && localStorage.getItem(GUEST_KEY) === "1") setIsGuest(true);
-      if (active) setHydrated(true);
     };
     void restore();
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -66,7 +81,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Defer profile query to avoid Supabase auth callback deadlocks.
       queueMicrotask(() => {
         void loadProfile(session.user.id, session.user.email || "", session.user.user_metadata || {})
-          .then((profile) => { if (active) { setUser(profile); setIsGuest(false); localStorage.removeItem(GUEST_KEY); } });
+          .then((profile) => { if (active) { setUser(profile); setIsGuest(false); localStorage.removeItem(GUEST_KEY); } })
+          .catch((error: unknown) => {
+            console.error("[auth] Falha ao atualizar perfil após autenticação:", error);
+            if (active) {
+              setUser(null);
+              setLoginMessage(error instanceof Error ? error.message : "Não foi possível carregar seu perfil.");
+              setLoginOpen(true);
+            }
+          });
       });
     });
     return () => { active = false; subscription.unsubscribe(); };
