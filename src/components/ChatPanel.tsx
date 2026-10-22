@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +33,7 @@ export function ChatPanel({
   const [thread, setThread] = useState<ChatThread | null>(null);
   const [draft, setDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     markRead(threadId, side);
@@ -69,9 +71,15 @@ export function ChatPanel({
         {thread?.messages.map((m) => {
           const mine = m.from === side;
           return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+            <motion.div
+              key={m.id}
+              initial={reducedMotion ? false : { opacity: 0, y: 10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className={`flex ${mine ? "justify-end" : "justify-start"}`}
+            >
               <div
-                className={`max-w-[85%] rounded-lg px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere] ${mine ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-muted text-foreground border border-border rounded-bl-sm"}`}
+                className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere] shadow-sm ${mine ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-muted text-foreground border border-border rounded-bl-sm"}`}
               >
                 {!mine && (
                   <div className="text-[10px] uppercase tracking-widest opacity-60 mb-0.5">
@@ -83,7 +91,7 @@ export function ChatPanel({
                   {fmtTime(m.at)}
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>

@@ -24,6 +24,7 @@ export type Order = {
 };
 
 const KEY = "tokyobs_orders";
+const EVENT = "tokyobs-orders-updated";
 
 function read(): Order[] {
   if (typeof window === "undefined") return [];
@@ -36,6 +37,20 @@ function read(): Order[] {
 
 function write(orders: Order[]) {
   localStorage.setItem(KEY, JSON.stringify(orders));
+  window.dispatchEvent(new CustomEvent(EVENT));
+}
+
+/** Atualiza listas em outras abas do mesmo navegador. Não sincroniza dispositivos diferentes. */
+export function subscribeOrders(cb: () => void): () => void {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === KEY) cb();
+  };
+  window.addEventListener(EVENT, cb);
+  window.addEventListener("storage", onStorage);
+  return () => {
+    window.removeEventListener(EVENT, cb);
+    window.removeEventListener("storage", onStorage);
+  };
 }
 
 export function listOrders(): Order[] {

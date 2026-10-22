@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Package, Clock, CheckCircle2, AlertTriangle, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { listOrders, updateOrder, STATUS_LABEL, type Order, type OrderStatus } from "@/lib/orders";
+import { listOrders, updateOrder, subscribeOrders, STATUS_LABEL, type Order, type OrderStatus } from "@/lib/orders";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AdminChats } from "@/components/AdminChats";
@@ -48,7 +48,10 @@ function AdminPage() {
   }, [hydrated, user, isGuest, requireAuth]);
 
   useEffect(() => {
-    if (isAdmin) setOrders(listOrders());
+    if (!isAdmin) return;
+    const refreshOrders = () => setOrders(listOrders());
+    refreshOrders();
+    return subscribeOrders(refreshOrders);
   }, [isAdmin]);
 
   useEffect(() => {
