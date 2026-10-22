@@ -5,8 +5,6 @@ import { motion } from "framer-motion";
 import { useCart, fmtBRL } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { createOrder } from "@/lib/orders";
-import { useState } from "react";
-import { toast } from "sonner";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/carrinho")({
@@ -27,7 +25,6 @@ function CarrinhoPage() {
   const { items, updateQty, removeItem, clearCart, totalPrice, totalCount } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const finalize = async () => {
