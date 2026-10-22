@@ -1,87 +1,29 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type TKRole = "user" | "admin";
-
-export type TKUser = {
-  email: string;
-  nickname: string;
-  avatar: string;
-  role: TKRole;
-};
-
-type StoredUser = TKUser & { password: string };
-
+export type TKUser = { email: string; nickname: string; avatar: string; role: TKRole };
+type AuthResult = { ok: boolean; error?: string };
 type AuthCtx = {
-  /** true após a sessão do localStorage ser restaurada (evita pedir login antes da hidratação) */
-  hydrated: boolean;
-  user: TKUser | null;
-  isGuest: boolean;
-  isAdmin: boolean;
-  hasAccess: boolean; // user OR guest
-  login: (u: { email: string; password: string }) => { ok: boolean; error?: string };
+  hydrated: boolean; user: TKUser | null; isGuest: boolean; isAdmin: boolean; hasAccess: boolean;
+  login: (u: { email: string; password: string }) => Promise<AuthResult>;
   loginAsGuest: () => void;
-  register: (u: { email: string; password: string; nickname: string; avatar: string }) => { ok: boolean; error?: string };
-  logout: () => void;
-  updateProfile: (patch: Partial<TKUser>) => void;
-  openLogin: () => void;
-  closeLogin: () => void;
-  isLoginOpen: boolean;
-  loginMessage: string;
+  register: (u: { email: string; password: string; nickname: string; avatar: string }) => Promise<AuthResult>;
+  logout: () => Promise<void>;
+  updateProfile: (patch: Partial<TKUser>) => Promise<void>;
+  openLogin: () => void; closeLogin: () => void; isLoginOpen: boolean; loginMessage: string;
   requireAuth: (message?: string) => boolean;
-  resetPassword: (email: string) => { ok: boolean; error?: string };
+  resetPassword: (email: string) => Promise<AuthResult>;
 };
-
 const AuthContext = createContext<AuthCtx>(null as never);
-
-const USERS_KEY = "tk-users";
-const SESSION_KEY = "tk-user";
 const GUEST_KEY = "tk-guest";
 
-const ADMIN_EMAIL = "admin@tokyobs.com";
-const ADMIN_PASSWORD = "admin123";
-
-function encode(pw: string): string {
-  try { return btoa(unescape(encodeURIComponent(pw))); } catch { return pw; }
-}
-
-function readUsers(): StoredUser[] {
-  if (typeof window === "undefined") return [];
-  try { return JSON.parse(localStorage.getItem(USERS_KEY) || "[]"); } catch { return []; }
-}
-function writeUsers(users: StoredUser[]) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-// Garante a conta admin fixa e migra senhas antigas (texto puro → base64) e
-// usuários sem role.
-function ensureSeedAndMigrate() {
-  const users = readUsers();
-  let changed = false;
-  const adminIdx = users.findIndex((x) => x.email.toLowerCase() === ADMIN_EMAIL);
-  if (adminIdx < 0) {
-    users.push({
-      email: ADMIN_EMAIL,
-      nickname: "Admin TOKYOBS",
-      avatar: "",
-      role: "admin",
-      password: encode(ADMIN_PASSWORD),
-    });
-    changed = true;
-  } else if (users[adminIdx].role !== "admin") {
-    users[adminIdx].role = "admin";
-    changed = true;
-  }
-  for (const u of users) {
-    if (!u.role) { u.role = "user"; changed = true; }
-    // Migração: senhas antigas em texto puro passam a ser base64.
-    try {
-      if (decodeURIComponent(escape(atob(u.password))) === "") changed = true;
-    } catch {
-      u.password = encode(u.password);
-      changed = true;
-    }
-  }
-  if (changed) writeUsers(users);
+function authError(error: unknown): string {
+  const message = error instanceof Error ? error.message : "Não foi possível concluir a operação.";
+  if (/invalid login credentials/i.test(message)) return "Email ou senha incorretos.";
+  if (/already registered/i.test(message)) return "Email já cadastrado. Faça login.";
+  if (/email not confirmed/i.test(message)) return "Confirme seu email antes de entrar.";
+  return message;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -91,108 +33,94 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loginMessage, setLoginMessage] = useState("");
   const [hydrated, setHydrated] = useState(false);
 
+  const loadProfile = async (id: string, email: string, metadata: Record<string, unknown>): Promise<TKUser> => {
+    const { data } = await supabase.from("profiles").select("nickname, avatar, role").eq("id", id).maybeSingle();
+    const profile = data as { nickname?: string; avatar?: string; role?: string } | null;
+    return {
+      email,
+      nickname: profile?.nickname || String(metadata.nickname || email.split("@")[0]),
+      avatar: profile?.avatar || String(metadata.avatar || ""),
+      // Role is read only from the database profile, never from client metadata.
+      role: profile?.role === "admin" ? "admin" : "user",
+    };
+  };
+
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    ensureSeedAndMigrate();
-    const raw = localStorage.getItem(SESSION_KEY);
-    if (raw) {
-      try { setUser(JSON.parse(raw)); } catch { /* noop */ }
-    }
-    if (localStorage.getItem(GUEST_KEY) === "1") setIsGuest(true);
-    setHydrated(true);
+    let active = true;
+    const restore = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user && active) {
+        const profile = await loadProfile(session.user.id, session.user.email || "", session.user.user_metadata || {});
+        if (active) setUser(profile);
+      }
+      if (active && localStorage.getItem(GUEST_KEY) === "1") setIsGuest(true);
+      if (active) setHydrated(true);
+    };
+    void restore();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!active) return;
+      if (!session?.user) {
+        setUser(null);
+        return;
+      }
+      // Defer profile query to avoid Supabase auth callback deadlocks.
+      queueMicrotask(() => {
+        void loadProfile(session.user.id, session.user.email || "", session.user.user_metadata || {})
+          .then((profile) => { if (active) { setUser(profile); setIsGuest(false); localStorage.removeItem(GUEST_KEY); } });
+      });
+    });
+    return () => { active = false; subscription.unsubscribe(); };
   }, []);
 
-  const persistSession = (u: TKUser | null) => {
-    setUser(u);
-    if (u) {
-      localStorage.setItem(SESSION_KEY, JSON.stringify(u));
-      // Logging in clears guest flag
-      localStorage.removeItem(GUEST_KEY);
-      setIsGuest(false);
-    } else {
-      localStorage.removeItem(SESSION_KEY);
-    }
+  const login: AuthCtx["login"] = async ({ email, password }) => {
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+    return error ? { ok: false, error: authError(error) } : { ok: true };
   };
 
-  const register: AuthCtx["register"] = (u) => {
-    const users = readUsers();
-    if (users.some((x) => x.email.toLowerCase() === u.email.toLowerCase())) {
-      return { ok: false, error: "Email já cadastrado. Faça login" };
+  const register: AuthCtx["register"] = async ({ email, password, nickname, avatar }) => {
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim().toLowerCase(), password,
+      options: { data: { nickname: nickname.trim(), avatar } },
+    });
+    if (error) return { ok: false, error: authError(error) };
+    if (data.user && data.session) {
+      const { error: profileError } = await supabase.from("profiles").upsert({
+        id: data.user.id, email: data.user.email || email, nickname: nickname.trim(), avatar, role: "user",
+      }, { onConflict: "id" });
+      if (profileError) return { ok: false, error: "Conta criada, mas não foi possível salvar o perfil. Tente entrar novamente." };
     }
-    const record: StoredUser = { ...u, role: "user", password: encode(u.password) };
-    users.push(record);
-    writeUsers(users);
-    persistSession({ email: u.email, nickname: u.nickname, avatar: u.avatar, role: "user" });
+    if (data.user && !data.session) return { ok: false, error: "Conta criada! Confirme seu email para entrar." };
     return { ok: true };
   };
 
-  const login: AuthCtx["login"] = ({ email, password }) => {
-    const users = readUsers();
-    const record = users.find((x) => x.email.toLowerCase() === email.toLowerCase());
-    if (!record) return { ok: false, error: "Email não cadastrado. Crie uma conta" };
-    if (record.password !== encode(password)) return { ok: false, error: "Senha incorreta" };
-    persistSession({ email: record.email, nickname: record.nickname, avatar: record.avatar, role: record.role });
-    return { ok: true };
-  };
-
-  const loginAsGuest = () => {
-    localStorage.setItem(GUEST_KEY, "1");
-    setIsGuest(true);
-    setLoginOpen(false);
-  };
-
-  const logout = () => {
-    persistSession(null);
+  const loginAsGuest = () => { localStorage.setItem(GUEST_KEY, "1"); setIsGuest(true); setLoginOpen(false); };
+  const logout = async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem(GUEST_KEY);
-    setIsGuest(false);
+    setUser(null); setIsGuest(false);
   };
-
-  const updateProfile = (patch: Partial<TKUser>) => {
+  const updateProfile: AuthCtx["updateProfile"] = async (patch) => {
     if (!user) return;
     const next = { ...user, ...patch, role: user.role };
-    persistSession(next);
-    const users = readUsers();
-    const idx = users.findIndex((x) => x.email.toLowerCase() === next.email.toLowerCase());
-    if (idx >= 0) {
-      users[idx] = { ...users[idx], nickname: next.nickname, avatar: next.avatar };
-      writeUsers(users);
-    }
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) return;
+    const { error } = await supabase.from("profiles").update({ nickname: next.nickname, avatar: next.avatar }).eq("id", authUser.id);
+    if (!error) setUser(next);
   };
-
-  const resetPassword: AuthCtx["resetPassword"] = (email) => {
-    const users = readUsers();
-    const idx = users.findIndex((x) => x.email.toLowerCase() === email.toLowerCase());
-    if (idx < 0) return { ok: false, error: "Email não encontrado" };
-    if (users[idx].role === "admin") return { ok: false, error: "A senha do admin não pode ser resetada" };
-    users[idx].password = encode("123456");
-    writeUsers(users);
-    return { ok: true };
+  const resetPassword: AuthCtx["resetPassword"] = async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase());
+    return error ? { ok: false, error: authError(error) } : { ok: true };
   };
-
   const openLogin = () => { setLoginMessage(""); setLoginOpen(true); };
   const closeLogin = () => setLoginOpen(false);
-
-  // Guest counts as having access throughout the site.
-  const requireAuth = (message = "Faça login pra consultar") => {
+  const requireAuth = (message = "Faça login para continuar") => {
     if (user || isGuest) return true;
-    setLoginMessage(message);
-    setLoginOpen(true);
-    return false;
+    setLoginMessage(message); setLoginOpen(true); return false;
   };
-
-  const hasAccess = !!user || isGuest;
-  const isAdmin = user?.role === "admin";
-
-  return (
-    <AuthContext.Provider value={{
-      hydrated, user, isGuest, isAdmin, hasAccess,
-      login, loginAsGuest, register, logout, updateProfile,
-      openLogin, closeLogin, isLoginOpen, loginMessage,
-      requireAuth, resetPassword,
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{
+    hydrated, user, isGuest, isAdmin: user?.role === "admin", hasAccess: !!user || isGuest,
+    login, loginAsGuest, register, logout, updateProfile, openLogin, closeLogin,
+    isLoginOpen, loginMessage, requireAuth, resetPassword,
+  }}>{children}</AuthContext.Provider>;
 }
-
 export const useAuth = () => useContext(AuthContext);
