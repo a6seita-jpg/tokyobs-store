@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Key } from "lucide-react";
+import { Key, ImagePlus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { triggerRipple } from "@/lib/ripple";
 
@@ -20,6 +20,8 @@ function PerfilPage() {
   const [nickname, setNickname] = useState("");
   const [avatar, setAvatar] = useState("");
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (!user && !isGuest) {
@@ -35,12 +37,54 @@ function PerfilPage() {
 
   if (!user && !isGuest) return null;
 
-  const submit = (e: React.FormEvent) => {
+  const choosePhoto = (file?: File) => {
+    if (!file) return;
+    setErrorMessage("");
+    if (!file.type.startsWith("image/")) {
+      setErrorMessage("Escolha um arquivo de imagem.");
+      return;
+    }
+    if (file.size > 12 * 1024 * 1024) {
+      setErrorMessage("A foto deve ter no máximo 12 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onerror = () => setErrorMessage("Não foi possível ler essa foto.");
+    reader.onload = () => {
+      const image = new Image();
+      image.onerror = () => setErrorMessage("Não foi possível abrir essa imagem.");
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        const scale = Math.min(1, 512 / Math.max(image.width, image.height));
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          setErrorMessage("Não foi possível processar essa foto.");
+          return;
+        }
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        setAvatar(canvas.toDataURL("image/jpeg", 0.78));
+      };
+      image.src = String(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    updateProfile({ nickname, avatar });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1800);
+    setSaving(true);
+    setErrorMessage("");
+    try {
+      await updateProfile({ nickname, avatar });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1800);
+    } catch {
+      setErrorMessage("Não foi possível salvar o perfil. Tente novamente.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const guestAvatar = `https://api.dicebear.com/9.x/initials/svg?seed=Guest`;
@@ -103,22 +147,29 @@ function PerfilPage() {
                 className="h-11 px-3 rounded-md border border-input bg-background outline-none focus:border-primary"
               />
             </label>
-            <label className="flex flex-col gap-1 text-sm">
-              <span className="text-muted-foreground">URL da foto</span>
-              <input
-                type="url"
-                value={avatar}
-                placeholder="https://..."
-                onChange={(e) => setAvatar(e.target.value)}
-                className="h-11 px-3 rounded-md border border-input bg-background outline-none focus:border-primary"
-              />
-            </label>
+            <div className="flex flex-col gap-2 text-sm">
+              <span className="text-muted-foreground">Foto de perfil</span>
+              <label className="flex items-center justify-center gap-2 h-11 rounded-full border border-border hover:border-primary cursor-pointer transition">
+                <ImagePlus className="h-4 w-4" />
+                Escolher foto da galeria
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(e) => { choosePhoto(e.target.files?.[0]); e.currentTarget.value = ""; }}
+                />
+              </label>
+              <p className="text-xs text-muted-foreground">Imagem de até 12 MB</p>
+            </div>
             <button
+              type="submit"
+              disabled={saving}
               onClick={triggerRipple}
-              className="ripple-host h-11 rounded-full bg-primary text-primary-foreground hover:opacity-90"
+              className="ripple-host h-11 rounded-full bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              Salvar alterações
+              {saving ? "Salvando..." : "Salvar alterações"}
             </button>
+            {errorMessage && <p role="alert" className="text-center text-sm text-destructive">{errorMessage}</p>}
             {saved && <p className="text-center text-sm text-primary">Perfil atualizado ✓</p>}
             <button
               type="button"
