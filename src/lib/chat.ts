@@ -1,151 +1,79 @@
-// Chat local da TOKYOBS (localStorage) — suporte geral e chat por pedido.
-// Threads: "support:<email>" (suporte geral) e "order:<orderId>" (ChatCompra).
+import { supabase } from "@/integrations/supabase/client";
 
-export type ChatMessage = {
-  id: string;
-  from: "user" | "admin";
-  author: string;
-  text: string;
-  at: number;
-};
-
+export type ChatMessage = { id: string; from: "user" | "admin"; author: string; text: string; at: number };
 export type ChatThread = {
-  id: string;
-  kind: "support" | "order";
-  /** email do comprador/usuário dono do thread */
-  ownerEmail: string;
-  ownerName: string;
-  /** id do pedido quando kind === "order" */
-  orderId?: string;
-  messages: ChatMessage[];
-  unreadForAdmin: number;
-  unreadForUser: number;
-  updatedAt: number;
+  id: string; kind: "support" | "order"; ownerEmail: string; ownerName: string;
+  orderId?: string; messages: ChatMessage[]; unreadForAdmin: number; unreadForUser: number; updatedAt: number;
 };
-
-const KEY = "tk-chats";
-const EVENT = "tk-chat-updated";
-
-function read(): ChatThread[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(KEY) || "[]");
-  } catch {
-    return [];
-  }
+type DbThread = { id: string; kind: "support" | "order"; owner_id: string; owner_email: string; owner_name: string; order_id: string | null; unread_for_admin: number; unread_for_user: number; updated_at: string };
+type DbMessage = { id: string; sender_role: "user" | "admin"; author: string; body: string; created_at: string };
+const mapMessage = (m: DbMessage): ChatMessage => ({ id: m.id, from: m.sender_role, author: m.author, text: m.body, at: new Date(m.created_at).getTime() });
+async function withMessages(row: DbThread): Promise<ChatThread> {
+  const { data, error } = await supabase.from("chat_messages").select("id,sender_role,author,body,created_at").eq("thread_id", row.id).order("created_at", { ascending: true });
+  if (error) throw error;
+  return {
+    id: row.id, kind: row.kind, ownerEmail: row.owner_email, ownerName: row.owner_name,
+    orderId: row.order_id ?? undefined, messages: ((data ?? []) as unknown as DbMessage[]).map(mapMessage),
+    unreadForAdmin: row.unread_for_admin, unreadForUser: row.unread_for_user, updatedAt: new Date(row.updated_at).getTime(),
+  };
 }
-
-function write(threads: ChatThread[]) {
-  localStorage.setItem(KEY, JSON.stringify(threads));
-  window.dispatchEvent(new CustomEvent(EVENT));
-}
-
-/** Reage a mudanças no chat (mesma aba ou outras abas). */
+const threadCols = "id,kind,owner_id,owner_email,owner_name,order_id,unread_for_admin,unread_for_user,updated_at";
 export function subscribeChat(cb: () => void): () => void {
-  const onStorage = (e: StorageEvent) => {
-    if (e.key === KEY) cb();
-  };
-  window.addEventListener(EVENT, cb);
-  window.addEventListener("storage", onStorage);
-  return () => {
-    window.removeEventListener(EVENT, cb);
-    window.removeEventListener("storage", onStorage);
-  };
+  const channel = supabase.channel("tokyobs-chat-sync")
+    .on("postgres_changes", { event: "*", schema: "public", table: "chat_threads" }, cb)
+    .on("postgres_changes", { event: "*", schema: "public", table: "chat_messages" }, cb)
+    .subscribe();
+  return () => { void supabase.removeChannel(channel); };
 }
-
-export function getThread(id: string): ChatThread | null {
-  return read().find((t) => t.id === id) ?? null;
+export async function getThread(id: string): Promise<ChatThread | null> {
+  const { data, error } = await supabase.from("chat_threads").select(threadCols).eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data ? withMessages(data as unknown as DbThread) : null;
 }
-
-export function listThreads(): ChatThread[] {
-  return read().sort((a, b) => b.updatedAt - a.updatedAt);
+export async function listThreads(): Promise<ChatThread[]> {
+  const { data, error } = await supabase.from("chat_threads").select(threadCols).order("updated_at", { ascending: false });
+  if (error) throw error;
+  return Promise.all(((data ?? []) as unknown as DbThread[]).map(withMessages));
 }
-
-export function supportThreadId(email: string) {
-  return `support:${email.toLowerCase()}`;
+export function supportThreadId(email: string) { return `support:${email.toLowerCase()}`; }
+export function orderThreadId(orderId: string) { return `order:${orderId}`; }
+export async function getOrCreateThread(input: { kind: "support" | "order"; ownerEmail: string; ownerName: string; orderId?: string }): Promise<ChatThread> {
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) throw new Error("Entre na sua conta para usar o chat sincronizado.");
+  let query = supabase.from("chat_threads").select(threadCols).eq("owner_id", user.id).eq("kind", input.kind);
+  query = input.kind === "order" ? query.eq("order_id", input.orderId ?? "") : query;
+  const { data: found, error } = await query.maybeSingle();
+  if (error) throw error;
+  if (found) return withMessages(found as unknown as DbThread);
+  if (input.kind === "order") {
+    const { data: order, error: orderError } = await supabase.from("orders").select("id").eq("id", input.orderId ?? "").maybeSingle();
+    if (orderError || !order) throw new Error("Pedido não encontrado para abrir o chat.");
+  }
+  const { data: row, error: insertError } = await supabase.from("chat_threads").insert({
+    kind: input.kind, owner_id: user.id, owner_email: user.email ?? input.ownerEmail,
+    owner_name: input.ownerName, order_id: input.kind === "order" ? input.orderId : null,
+  }).select(threadCols).single();
+  if (insertError) throw insertError;
+  return withMessages(row as unknown as DbThread);
 }
-
-export function orderThreadId(orderId: string) {
-  return `order:${orderId}`;
-}
-
-export function getOrCreateThread(input: {
-  kind: "support" | "order";
-  ownerEmail: string;
-  ownerName: string;
-  orderId?: string;
-}): ChatThread {
-  const id =
-    input.kind === "order" && input.orderId
-      ? orderThreadId(input.orderId)
-      : supportThreadId(input.ownerEmail);
-  const threads = read();
-  const existing = threads.find((t) => t.id === id);
-  if (existing) return existing;
-  const thread: ChatThread = {
-    id,
-    kind: input.kind,
-    ownerEmail: input.ownerEmail,
-    ownerName: input.ownerName,
-    orderId: input.orderId,
-    messages: [],
-    unreadForAdmin: 0,
-    unreadForUser: 0,
-    updatedAt: Date.now(),
-  };
-  write([thread, ...threads]);
-  return thread;
-}
-
-export function sendMessage(
-  threadId: string,
-  from: "user" | "admin",
-  author: string,
-  text: string,
-): ChatThread | null {
+export async function sendMessage(threadId: string, from: "user" | "admin", author: string, text: string): Promise<ChatThread | null> {
   const clean = text.trim();
   if (!clean) return null;
-  const threads = read();
-  const idx = threads.findIndex((t) => t.id === threadId);
-  if (idx < 0) return null;
-  const msg: ChatMessage = {
-    id: `${Date.now().toString(36)}${Math.floor(Math.random() * 1296).toString(36)}`,
-    from,
-    author,
-    text: clean,
-    at: Date.now(),
-  };
-  const t = threads[idx];
-  threads[idx] = {
-    ...t,
-    messages: [...t.messages, msg],
-    unreadForAdmin: from === "user" ? t.unreadForAdmin + 1 : t.unreadForAdmin,
-    unreadForUser: from === "admin" ? t.unreadForUser + 1 : t.unreadForUser,
-    updatedAt: msg.at,
-  };
-  write(threads);
-  return threads[idx];
+  const { error } = await supabase.rpc("send_chat_message", { p_thread_id: threadId, p_body: clean, p_author: author });
+  if (error) throw error;
+  return getThread(threadId);
 }
-
-/** Zera o contador de não-lidas do lado que abriu o chat. */
-export function markRead(threadId: string, side: "user" | "admin") {
-  const threads = read();
-  const idx = threads.findIndex((t) => t.id === threadId);
-  if (idx < 0) return;
-  const t = threads[idx];
-  const next = side === "admin" ? { ...t, unreadForAdmin: 0 } : { ...t, unreadForUser: 0 };
-  if (next.unreadForAdmin === t.unreadForAdmin && next.unreadForUser === t.unreadForUser) return;
-  threads[idx] = next;
-  write(threads);
+export async function markRead(threadId: string, _side: "user" | "admin"): Promise<void> {
+  const { error } = await supabase.rpc("mark_chat_read", { p_thread_id: threadId });
+  if (error) throw error;
 }
-
-/** Total de não-lidas para o usuário (badge do botão flutuante). */
-export function unreadForUser(email: string): number {
-  return read()
-    .filter((t) => t.ownerEmail.toLowerCase() === email.toLowerCase())
-    .reduce((s, t) => s + t.unreadForUser, 0);
+export async function unreadForUser(_email: string): Promise<number> {
+  const { data, error } = await supabase.from("chat_threads").select("unread_for_user");
+  if (error) throw error;
+  return (data ?? []).reduce((sum, row) => sum + Number((row as { unread_for_user: number }).unread_for_user), 0);
 }
-
-export function unreadForAdmin(): number {
-  return read().reduce((s, t) => s + t.unreadForAdmin, 0);
+export async function unreadForAdmin(): Promise<number> {
+  const { data, error } = await supabase.from("chat_threads").select("unread_for_admin");
+  if (error) throw error;
+  return (data ?? []).reduce((sum, row) => sum + Number((row as { unread_for_admin: number }).unread_for_admin), 0);
 }
