@@ -34,7 +34,7 @@ export function ChatWidget() {
 
   useEffect(() => {
     if (!hydrated || !open) { setThreadId(null); setChatError(""); return; }
-    if (!user) { setThreadId(null); openLogin(); close(); return; }
+    if (!user) { setThreadId(null); setChatError("Entre na sua conta para conversar com o suporte. O chat ficará aberto enquanto você faz login."); return; }
     let active = true;
     setChatError("");
     setThreadId(null);
@@ -69,9 +69,9 @@ export function ChatWidget() {
       <AnimatePresence>
         {open && !threadId && chatError && (
           <motion.div role="alert" className="fixed z-[70] bottom-24 right-4 left-4 sm:left-auto sm:w-[380px] rounded-lg border border-border bg-card p-5 shadow-2xl">
-            <p className="text-sm font-medium">Não foi possível abrir o chat</p>
+            <p className="text-sm font-medium">{user ? "Não foi possível abrir o chat" : "Faça login para continuar"}</p>
             <p className="mt-2 text-xs text-muted-foreground break-words">{chatError}</p>
-            <Button className="mt-3" variant="outline" size="sm" onClick={retryChat}>Tentar novamente</Button>
+            {!user ? <Button className="mt-3" variant="outline" size="sm" onClick={openLogin}>Fazer login</Button> : <Button className="mt-3" variant="outline" size="sm" onClick={retryChat}>Tentar novamente</Button>}
           </motion.div>
         )}
         {open && threadId && (
