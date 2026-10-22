@@ -91,11 +91,7 @@ function CheckoutPixPage() {
   const { user } = useAuth();
   const { openOrder } = useChatWidget();
   const [order, setOrder] = useState<Order | null>(null);
-  useEffect(() => {
-    let active = true;
-    if (orderId) void getOrder(orderId).then((value) => { if (active) setOrder(value); }).catch(() => { if (active) setOrder(null); });
-    return () => { active = false; };
-  }, [orderId]);
+  const [orderLoaded, setOrderLoaded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [expiredOpen, setExpiredOpen] = useState(false);
   const [comprovante, setComprovante] = useState("");
