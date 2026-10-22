@@ -75,7 +75,7 @@ create or replace function public.submit_order_payment(
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 begin
   if auth.uid() is null then raise exception 'Authentication required'; end if;
   update public.orders
@@ -88,7 +88,7 @@ begin
     and (expires_at > now() or p_expire);
   if not found then raise exception 'Order not found or no longer payable'; end if;
 end;
-$;
+$$;
 revoke all on function public.submit_order_payment(text,text,text,boolean) from public;
 grant execute on function public.submit_order_payment(text,text,text,boolean) to authenticated;
 
@@ -138,7 +138,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 begin
   if new.role is distinct from old.role and not (select public.is_admin()) then
     raise exception 'Only administrators can change profile roles';
@@ -146,7 +146,7 @@ begin
   new.updated_at = now();
   return new;
 end;
-$;
+$$;
 drop trigger if exists protect_profile_role_trigger on public.profiles;
 create trigger protect_profile_role_trigger before update on public.profiles
 for each row execute procedure public.protect_profile_role();
