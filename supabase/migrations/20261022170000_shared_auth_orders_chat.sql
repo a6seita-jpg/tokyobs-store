@@ -35,6 +35,15 @@ create trigger on_auth_user_created_profile
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
+-- Backfill profiles for accounts that existed before this migration.
+insert into public.profiles (id, email, nickname, avatar)
+select u.id, coalesce(u.email, ''),
+       coalesce(u.raw_user_meta_data ->> 'nickname', ''),
+       coalesce(u.raw_user_meta_data ->> 'avatar', '')
+from auth.users u
+on conflict (id) do update
+set email = excluded.email;
+
 create or replace function public.is_admin()
 returns boolean
 language sql
@@ -85,7 +94,7 @@ begin
   where id = p_order_id
     and user_id = auth.uid()
     and status = 'aguardando_pagamento'
-    and (expires_at > now() or p_expire);
+    and ((p_expire and expires_at <= now()) or (not p_expire and expires_at > now()));
   if not found then raise exception 'Order not found or no longer payable'; end if;
 end;
 $$;
