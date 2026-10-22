@@ -16,6 +16,7 @@ export function ChatWidget() {
   const { open, target, close, openSupport } = useChatWidget();
   const [unread, setUnread] = useState(0);
   const [threadId, setThreadId] = useState<string | null>(null);
+  const [chatError, setChatError] = useState("");
   const reduced = useReducedMotion();
 
   const email = user?.email ?? "convidado@tokyobs.store";
@@ -31,12 +32,13 @@ export function ChatWidget() {
   }, [hydrated, email]);
 
   useEffect(() => {
-    if (!hydrated || !open) { setThreadId(null); return; }
+    if (!hydrated || !open) { setThreadId(null); setChatError(""); return; }
     if (!user) { setThreadId(null); openLogin(); close(); return; }
     let active = true;
+    setChatError("");
     void getOrCreateThread({ kind: target.kind, ownerEmail: email, ownerName: name, orderId: target.kind === "order" ? target.orderId : undefined })
       .then((thread) => { if (active) setThreadId(thread.id); })
-      .catch(() => setThreadId(null));
+      .catch((error: unknown) => { if (active) { setThreadId(null); setChatError(error instanceof Error ? error.message : "Não foi possível abrir o chat."); } });
     return () => { active = false; };
   }, [hydrated, open, target, email, name, user, openLogin, close]);
 
@@ -62,6 +64,13 @@ export function ChatWidget() {
       {/* Quando fechado, o clique abre o suporte (handler separado p/ não fechar no mesmo clique) */}
 
       <AnimatePresence>
+        {open && !threadId && chatError && (
+          <motion.div role="alert" className="fixed z-[70] bottom-24 right-4 left-4 sm:left-auto sm:w-[380px] rounded-lg border border-border bg-card p-5 shadow-2xl">
+            <p className="text-sm font-medium">Não foi possível abrir o chat</p>
+            <p className="mt-2 text-xs text-muted-foreground break-words">{chatError}</p>
+            <Button className="mt-3" variant="outline" size="sm" onClick={() => { setChatError(""); setThreadId(null); openSupport(); }}>Tentar novamente</Button>
+          </motion.div>
+        )}
         {open && threadId && (
           <motion.div
             initial={reduced ? false : { opacity: 0, y: 24, scale: 0.96 }}
