@@ -56,9 +56,11 @@ function AdminPage() {
 
   useEffect(() => {
     if (!isAdmin) return;
-    const update = () => setUnread(listThreads().reduce((n, t) => n + t.unreadForAdmin, 0));
-    update();
-    return subscribeChat(update);
+    let active = true;
+    const update = async () => { try { const rows = await listThreads(); if (active) setUnread(rows.reduce((n, t) => n + t.unreadForAdmin, 0)); } catch { if (active) setUnread(0); } };
+    void update();
+    const unsubscribe = subscribeChat(() => { void update(); });
+    return () => { active = false; unsubscribe(); };
   }, [isAdmin]);
 
   const stats = useMemo(() => {
