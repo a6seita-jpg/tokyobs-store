@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
  * Montado uma vez na raiz; qualquer página abre via useChatWidget().
  */
 export function ChatWidget() {
-  const { hydrated, user } = useAuth();
+  const { hydrated, user, openLogin } = useAuth();
   const { open, target, close, openSupport } = useChatWidget();
   const [unread, setUnread] = useState(0);
   const [threadId, setThreadId] = useState<string | null>(null);
@@ -23,15 +23,22 @@ export function ChatWidget() {
 
   useEffect(() => {
     if (!hydrated) return;
-    const update = () => setUnread(unreadForUser(email));
-    update();
-    return subscribeChat(update);
+    let active = true;
+    const update = async () => { try { const n = await unreadForUser(email); if (active) setUnread(n); } catch { if (active) setUnread(0); } };
+    void update();
+    const unsubscribe = subscribeChat(() => { void update(); });
+    return () => { active = false; unsubscribe(); };
   }, [hydrated, email]);
 
   useEffect(() => {
     if (!hydrated || !open) { setThreadId(null); return; }
-    setThreadId(getOrCreateThread({ kind: target.kind, ownerEmail: email, ownerName: name, orderId: target.kind === "order" ? target.orderId : undefined }).id);
-  }, [hydrated, open, target, email, name]);
+    if (!user) { setThreadId(null); openLogin(); close(); return; }
+    let active = true;
+    void getOrCreateThread({ kind: target.kind, ownerEmail: email, ownerName: name, orderId: target.kind === "order" ? target.orderId : undefined })
+      .then((thread) => { if (active) setThreadId(thread.id); })
+      .catch(() => setThreadId(null));
+    return () => { active = false; };
+  }, [hydrated, open, target, email, name, user, openLogin, close]);
 
   if (!hydrated) return null;
 

@@ -10,9 +10,11 @@ export function AdminChats({ authorName }: { authorName: string }) {
   const [filter, setFilter] = useState<"all" | "support" | "order">("all");
   const [search, setSearch] = useState("");
   useEffect(() => {
-    const update = () => setThreads(listThreads());
-    update();
-    return subscribeChat(update);
+    let active = true;
+    const update = async () => { try { const rows = await listThreads(); if (active) setThreads(rows); } catch { if (active) setThreads([]); } };
+    void update();
+    const unsubscribe = subscribeChat(() => { void update(); });
+    return () => { active = false; unsubscribe(); };
   }, []);
   const visible = threads.filter(t => (filter === "all" || t.kind === filter) && `${t.ownerName} ${t.ownerEmail} ${t.orderId ?? ""}`.toLowerCase().includes(search.toLowerCase()));
   const thread = threads.find(t => t.id === selected);

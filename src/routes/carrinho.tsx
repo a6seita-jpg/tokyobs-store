@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { Minus, Plus, Trash2, ShieldCheck, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart, fmtBRL } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { createOrder } from "@/lib/orders";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/carrinho")({
   head: () => ({
@@ -23,15 +25,21 @@ function CarrinhoPage() {
   const { items, updateQty, removeItem, clearCart, totalPrice, totalCount } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
 
-  const finalize = () => {
+  const finalize = async () => {
     if (items.length === 0) return;
     const buyer = user
       ? { email: user.email, nickname: user.nickname }
       : { email: "convidado@tokyobs.store", nickname: "Convidado" };
-    const order = createOrder(items, totalPrice, buyer);
-    clearCart();
-    navigate({ to: "/checkout/pix", search: { order: order.id } });
+    setSaving(true);
+    try {
+      const order = await createOrder(items, totalPrice, buyer);
+      clearCart();
+      await navigate({ to: "/checkout/pix", search: { order: order.id } });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível criar o pedido.");
+    } finally { setSaving(false); }
   };
 
   return (
@@ -121,10 +129,11 @@ function CarrinhoPage() {
             </div>
             <button
               onClick={finalize}
+              disabled={saving}
               className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition"
             >
               <Zap className="h-4 w-4" />
-              Finalizar com Pix
+              {saving ? "Criando pedido..." : "Finalizar com Pix"}
             </button>
             <div className="mt-4 flex items-start gap-2 text-[11px] text-muted-foreground leading-relaxed">
               <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />

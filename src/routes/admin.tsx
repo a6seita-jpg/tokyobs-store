@@ -48,14 +48,19 @@ function AdminPage() {
   }, [hydrated, user, isGuest, requireAuth]);
 
   useEffect(() => {
-    if (isAdmin) setOrders(listOrders());
+    if (!isAdmin) return;
+    let active = true;
+    void listOrders().then((value) => { if (active) setOrders(value); }).catch(() => toast.error("Não foi possível carregar os pedidos."));
+    return () => { active = false; };
   }, [isAdmin]);
 
   useEffect(() => {
     if (!isAdmin) return;
-    const update = () => setUnread(listThreads().reduce((n, t) => n + t.unreadForAdmin, 0));
-    update();
-    return subscribeChat(update);
+    let active = true;
+    const update = async () => { try { const rows = await listThreads(); if (active) setUnread(rows.reduce((n, t) => n + t.unreadForAdmin, 0)); } catch { if (active) setUnread(0); } };
+    void update();
+    const unsubscribe = subscribeChat(() => { void update(); });
+    return () => { active = false; unsubscribe(); };
   }, [isAdmin]);
 
   const stats = useMemo(() => {
@@ -108,11 +113,13 @@ function AdminPage() {
 
   const visible = filter === "todos" ? orders : orders.filter((o) => o.status === filter);
 
-  const setStatus = (id: string, status: OrderStatus) => {
-    const updated = updateOrder(id, { status });
-    if (!updated) return;
-    setOrders(listOrders());
-    toast.success(`Pedido ${id} → ${STATUS_LABEL[status]}`);
+  const setStatus = async (id: string, status: OrderStatus) => {
+    try {
+      const updated = await updateOrder(id, { status });
+      if (!updated) return;
+      setOrders(await listOrders());
+      toast.success(`Pedido ${id} → ${STATUS_LABEL[status]}`);
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Falha ao atualizar pedido."); }
   };
 
   return (
