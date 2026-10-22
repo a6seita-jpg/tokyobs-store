@@ -164,6 +164,7 @@ for insert to authenticated with check (
   exists (select 1 from public.chat_threads t where t.id = thread_id and
     (t.owner_id = (select auth.uid()) or (select public.is_admin())) and
     ((sender_role = 'admin' and (select public.is_admin())) or (sender_role = 'user' and t.owner_id = (select auth.uid())))
+  )
 );
 
 grant select, update on public.profiles to authenticated;
