@@ -34,14 +34,17 @@ export function ChatPanel({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    markRead(threadId, side);
-    setThread(getThread(threadId));
-    onOpen?.(getThread(threadId));
-    const unsub = subscribeChat(() => {
-      markRead(threadId, side);
-      setThread(getThread(threadId));
-    });
-    return unsub;
+    let active = true;
+    const refresh = async () => {
+      try {
+        await markRead(threadId, side);
+        const value = await getThread(threadId);
+        if (active) { setThread(value); onOpen?.(value); }
+      } catch { if (active) setThread(null); }
+    };
+    void refresh();
+    const unsub = subscribeChat(() => { void refresh(); });
+    return () => { active = false; unsub(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threadId, side]);
 
@@ -50,10 +53,12 @@ export function ChatPanel({
     if (el) el.scrollTop = el.scrollHeight;
   }, [thread?.messages.length]);
 
-  const send = () => {
+  const send = async () => {
     if (!draft.trim()) return;
-    sendMessage(threadId, side, authorName, draft);
+    const message = draft;
     setDraft("");
+    try { const updated = await sendMessage(threadId, side, authorName, message); if (updated) setThread(updated); }
+    catch { setDraft(message); }
   };
 
   return (
