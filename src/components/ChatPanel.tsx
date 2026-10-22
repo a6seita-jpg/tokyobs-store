@@ -40,7 +40,8 @@ export function ChatPanel({
     let active = true;
     const refresh = async () => {
       try {
-        await markRead(threadId, side);
+        // Falha ao marcar como lida não deve impedir o carregamento das mensagens.
+        try { await markRead(threadId, side); } catch (readError) { console.warn("Não foi possível marcar o chat como lido:", readError); }
         const value = await getThread(threadId);
         if (active) { setThread(value); setLoadError(""); onOpen?.(value); }
       } catch (error) {
