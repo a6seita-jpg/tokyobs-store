@@ -23,14 +23,20 @@ export function ChatWidget() {
 
   useEffect(() => {
     if (!hydrated) return;
-    const update = () => setUnread(unreadForUser(email));
-    update();
-    return subscribeChat(update);
+    let active = true;
+    const update = async () => { try { const n = await unreadForUser(email); if (active) setUnread(n); } catch { if (active) setUnread(0); } };
+    void update();
+    const unsubscribe = subscribeChat(() => { void update(); });
+    return () => { active = false; unsubscribe(); };
   }, [hydrated, email]);
 
   useEffect(() => {
     if (!hydrated || !open) { setThreadId(null); return; }
-    setThreadId(getOrCreateThread({ kind: target.kind, ownerEmail: email, ownerName: name, orderId: target.kind === "order" ? target.orderId : undefined }).id);
+    let active = true;
+    void getOrCreateThread({ kind: target.kind, ownerEmail: email, ownerName: name, orderId: target.kind === "order" ? target.orderId : undefined })
+      .then((thread) => { if (active) setThreadId(thread.id); })
+      .catch(() => setThreadId(null));
+    return () => { active = false; };
   }, [hydrated, open, target, email, name]);
 
   if (!hydrated) return null;
