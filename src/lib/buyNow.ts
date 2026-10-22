@@ -8,7 +8,7 @@ export function useBuyNow() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  return (item: Omit<CartItem, "id"> & { id?: string }) => {
+  return async (item: Omit<CartItem, "id"> & { id?: string }) => {
     const buyer = user
       ? { email: user.email, nickname: user.nickname }
       : { email: "convidado@tokyobs.store", nickname: "Convidado" };
@@ -16,7 +16,7 @@ export function useBuyNow() {
       ...item,
       id: item.id ?? `${item.product}::${item.variation}`,
     };
-    const order = createOrder([cartItem], cartItem.unitPrice * cartItem.quantity, buyer);
+    const order = await createOrder([cartItem], cartItem.unitPrice * cartItem.quantity, buyer);
     navigate({ to: "/checkout/pix", search: { order: order.id } });
   };
 }

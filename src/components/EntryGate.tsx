@@ -51,11 +51,11 @@ function EntryLoginModal() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!email || !password) { setError("Preencha email e senha"); return; }
-    const r = login({ email, password });
+    const r = await login({ email, password });
     if (!r.ok) setError(r.error || "Erro");
   };
 
