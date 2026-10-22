@@ -65,6 +65,34 @@ create table if not exists public.orders (
 
 create index if not exists orders_user_created_idx on public.orders(user_id, created_at desc);
 
+-- Customer payment submission is restricted to the order owner and cannot mark an order delivered.
+create or replace function public.submit_order_payment(
+  p_order_id text,
+  p_comprovante text default null,
+  p_observacao text default null,
+  p_expire boolean default false
+) returns void
+language plpgsql
+security definer
+set search_path = ''
+as $
+begin
+  if auth.uid() is null then raise exception 'Authentication required'; end if;
+  update public.orders
+  set comprovante = case when p_expire then comprovante else p_comprovante end,
+      observacao = case when p_expire then observacao else p_observacao end,
+      status = case when p_expire then 'expirado' else 'em_analise' end
+  where id = p_order_id
+    and user_id = auth.uid()
+    and status = 'aguardando_pagamento'
+    and (expires_at > now() or p_expire);
+  if not found then raise exception 'Order not found or no longer payable'; end if;
+end;
+$;
+revoke all on function public.submit_order_payment(text,text,text,boolean) from public;
+grant execute on function public.submit_order_payment(text,text,text,boolean) to authenticated;
+
+
 create table if not exists public.chat_threads (
   id uuid primary key default gen_random_uuid(),
   kind text not null check (kind in ('support','order')),
