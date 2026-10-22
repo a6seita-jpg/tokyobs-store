@@ -157,7 +157,7 @@ for update to authenticated using (id = (select auth.uid()) or (select public.is
 with check (id = (select auth.uid()) or (select public.is_admin()));
 drop policy if exists "Users insert own orders" on public.orders;
 create policy "Users insert own orders" on public.orders
-for insert to authenticated with check (user_id = (select auth.uid()));
+for insert to authenticated with check (user_id = (select auth.uid()) and status = 'aguardando_pagamento');
 drop policy if exists "Users read own orders and admins read all" on public.orders;
 create policy "Users read own orders and admins read all" on public.orders
 for select to authenticated using (user_id = (select auth.uid()) or (select public.is_admin()));
@@ -262,11 +262,14 @@ security definer
 set search_path = ''
 as $$
 begin
+  if not exists (select 1 from public.chat_threads where id = p_thread_id and (owner_id = auth.uid() or (select public.is_admin()))) then
+    raise exception 'Not allowed';
+  end if;
   update public.chat_threads
   set unread_for_user = case when owner_id = auth.uid() then 0 else unread_for_user end,
       unread_for_admin = case when (select public.is_admin()) then 0 else unread_for_admin end
-  where id = p_thread_id and (owner_id = auth.uid() or (select public.is_admin()));
-  if not found then raise exception 'Not allowed'; end if;
+  where id = p_thread_id and
+    ((owner_id = auth.uid() and unread_for_user > 0) or ((select public.is_admin()) and unread_for_admin > 0));
 end;
 $$;
 revoke all on function public.mark_chat_read(uuid) from public;
