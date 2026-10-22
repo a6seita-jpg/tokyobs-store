@@ -17,6 +17,7 @@ export function ChatWidget() {
   const [unread, setUnread] = useState(0);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [chatError, setChatError] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
   const reduced = useReducedMotion();
 
   const email = user?.email ?? "convidado@tokyobs.store";
@@ -36,19 +37,25 @@ export function ChatWidget() {
     if (!user) { setThreadId(null); openLogin(); close(); return; }
     let active = true;
     setChatError("");
+    setThreadId(null);
     void getOrCreateThread({ kind: target.kind, ownerEmail: email, ownerName: name, orderId: target.kind === "order" ? target.orderId : undefined })
       .then((thread) => { if (active) setThreadId(thread.id); })
       .catch((error: unknown) => { if (active) { setThreadId(null); setChatError(error instanceof Error ? error.message : "Não foi possível abrir o chat."); } });
     return () => { active = false; };
-  }, [hydrated, open, target, email, name, user, openLogin, close]);
+  }, [hydrated, open, target, email, name, user, openLogin, close, retryKey]);
 
   if (!hydrated) return null;
 
   const title = target.kind === "order" ? `Pedido ${target.orderId}` : "Suporte TOKYOBS";
 
+  const retryChat = () => {
+    setChatError("");
+    setThreadId(null);
+    setRetryKey((key) => key + 1);
+  };
+
   return (
     <>
-      {/* Botão flutuante */}
       <Button
         onClick={() => (open ? close() : openSupport())}
         aria-label={open ? "Fechar chat" : "Abrir chat de suporte"}
@@ -56,19 +63,15 @@ export function ChatWidget() {
       >
         {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-6 w-6" />}
         {!open && unread > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 grid place-items-center rounded-full text-[10px] font-bold bg-card text-primary border border-primary">
-            {unread}
-          </span>
+          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 grid place-items-center rounded-full text-[10px] font-bold bg-card text-primary border border-primary">{unread}</span>
         )}
       </Button>
-      {/* Quando fechado, o clique abre o suporte (handler separado p/ não fechar no mesmo clique) */}
-
       <AnimatePresence>
         {open && !threadId && chatError && (
           <motion.div role="alert" className="fixed z-[70] bottom-24 right-4 left-4 sm:left-auto sm:w-[380px] rounded-lg border border-border bg-card p-5 shadow-2xl">
             <p className="text-sm font-medium">Não foi possível abrir o chat</p>
             <p className="mt-2 text-xs text-muted-foreground break-words">{chatError}</p>
-            <Button className="mt-3" variant="outline" size="sm" onClick={() => { setChatError(""); setThreadId(null); openSupport(); }}>Tentar novamente</Button>
+            <Button className="mt-3" variant="outline" size="sm" onClick={retryChat}>Tentar novamente</Button>
           </motion.div>
         )}
         {open && threadId && (
@@ -81,20 +84,14 @@ export function ChatWidget() {
             className="fixed z-[70] bottom-24 right-4 left-4 sm:left-auto sm:w-[380px] h-[70dvh] max-h-[540px] rounded-lg border border-border bg-card shadow-2xl flex flex-col overflow-hidden"
           >
             <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border bg-muted/50">
-              <span className="h-9 w-9 rounded-full grid place-items-center bg-primary/15 text-primary">
-                <Headphones className="h-4 w-4" />
-              </span>
+              <span className="h-9 w-9 rounded-full grid place-items-center bg-primary/15 text-primary"><Headphones className="h-4 w-4" /></span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{title}</p>
                 <p className="text-[11px] text-muted-foreground">Atendimento humano 24h</p>
               </div>
-              <Button variant="ghost" size="icon" onClick={close} aria-label="Fechar conversa" className="h-8 w-8 rounded-full">
-                <X className="h-4 w-4" />
-              </Button>
+              <Button variant="ghost" size="icon" onClick={close} aria-label="Fechar conversa" className="h-8 w-8 rounded-full"><X className="h-4 w-4" /></Button>
             </div>
-            <div className="flex-1 min-h-0">
-              <ChatPanel key={threadId} threadId={threadId} side="user" authorName={name} />
-            </div>
+            <div className="flex-1 min-h-0"><ChatPanel key={threadId} threadId={threadId} side="user" authorName={name} /></div>
           </motion.div>
         )}
       </AnimatePresence>
