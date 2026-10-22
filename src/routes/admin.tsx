@@ -48,7 +48,10 @@ function AdminPage() {
   }, [hydrated, user, isGuest, requireAuth]);
 
   useEffect(() => {
-    if (isAdmin) setOrders(listOrders());
+    if (!isAdmin) return;
+    let active = true;
+    void listOrders().then((value) => { if (active) setOrders(value); }).catch(() => toast.error("Não foi possível carregar os pedidos."));
+    return () => { active = false; };
   }, [isAdmin]);
 
   useEffect(() => {
@@ -108,11 +111,13 @@ function AdminPage() {
 
   const visible = filter === "todos" ? orders : orders.filter((o) => o.status === filter);
 
-  const setStatus = (id: string, status: OrderStatus) => {
-    const updated = updateOrder(id, { status });
-    if (!updated) return;
-    setOrders(listOrders());
-    toast.success(`Pedido ${id} → ${STATUS_LABEL[status]}`);
+  const setStatus = async (id: string, status: OrderStatus) => {
+    try {
+      const updated = await updateOrder(id, { status });
+      if (!updated) return;
+      setOrders(await listOrders());
+      toast.success(`Pedido ${id} → ${STATUS_LABEL[status]}`);
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Falha ao atualizar pedido."); }
   };
 
   return (
