@@ -44,10 +44,30 @@ export async function createOrder(items:CartItem[],total:number,buyer:OrderBuyer
   return order;
 }
 export async function updateOrder(id:string,patch:Partial<Order>):Promise<Order|null> {
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) throw new Error("Entre na sua conta para atualizar o pedido.");
+  const { data: profile, error: profileError } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  if (profileError) throw profileError;
+  const isAdmin = (profile as { role?: string } | null)?.role === "admin";
+
+  // Clientes só podem enviar comprovante ou expirar o próprio pedido via RPC protegida.
+  if (!isAdmin && (patch.status === "em_analise" || patch.status === "expirado")) {
+    const { error } = await supabase.rpc("submit_order_payment", {
+      p_order_id: id,
+      p_comprovante: patch.comprovante ?? null,
+      p_observacao: patch.observacao ?? null,
+      p_expire: patch.status === "expirado",
+    });
+    if (error) throw error;
+    return getOrder(id);
+  }
+  if (!isAdmin) throw new Error("Você não tem permissão para alterar este pedido.");
+
   const update:Record<string,unknown>={};
   if(patch.status!==undefined) update.status=patch.status;
   if(patch.comprovante!==undefined) update.comprovante=patch.comprovante;
   if(patch.observacao!==undefined) update.observacao=patch.observacao;
+  if (Object.keys(update).length === 0) return getOrder(id);
   const {data,error}=await supabase.from("orders").update(update).eq("id",id).select("*").maybeSingle();
   if(error) throw error;
   return data ? fromRow(data as unknown as OrderRow) : null;
