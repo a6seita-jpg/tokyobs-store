@@ -31,6 +31,9 @@ export function ChatPanel({
 }) {
   const [thread, setThread] = useState<ChatThread | null>(null);
   const [draft, setDraft] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const [sendError, setSendError] = useState("");
+  const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,8 +42,13 @@ export function ChatPanel({
       try {
         await markRead(threadId, side);
         const value = await getThread(threadId);
-        if (active) { setThread(value); onOpen?.(value); }
-      } catch { if (active) setThread(null); }
+        if (active) { setThread(value); setLoadError(""); onOpen?.(value); }
+      } catch (error) {
+        if (active) {
+          setThread(null);
+          setLoadError(error instanceof Error ? error.message : "Falha ao carregar mensagens.");
+        }
+      }
     };
     void refresh();
     const unsub = subscribeChat(() => { void refresh(); });
@@ -54,17 +62,24 @@ export function ChatPanel({
   }, [thread?.messages.length]);
 
   const send = async () => {
-    if (!draft.trim()) return;
+    if (!draft.trim() || sending) return;
     const message = draft;
-    setDraft("");
-    try { const updated = await sendMessage(threadId, side, authorName, message); if (updated) setThread(updated); }
-    catch { setDraft(message); }
+    setSending(true);
+    setSendError("");
+    try {
+      const updated = await sendMessage(threadId, side, authorName, message);
+      if (updated) setThread(updated);
+      setDraft("");
+    } catch (error) {
+      setSendError(error instanceof Error ? error.message : "Não foi possível enviar a mensagem.");
+    } finally { setSending(false); }
   };
 
   return (
     <div className="flex flex-col h-full min-h-0">
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
-        {(!thread || thread.messages.length === 0) && (
+        {loadError && <p role="alert" className="mx-auto max-w-sm rounded-md border border-destructive/30 p-3 text-center text-xs text-destructive break-words">Erro ao carregar o chat: {loadError}</p>}
+        {(!thread || thread.messages.length === 0) && !loadError && (
           <p className="text-center text-xs text-muted-foreground pt-6 leading-relaxed">
             {side === "admin"
               ? "Nenhuma mensagem ainda. Responda quando o cliente escrever."
@@ -93,6 +108,7 @@ export function ChatPanel({
         })}
       </div>
 
+      {sendError && <p role="alert" className="px-3 pt-2 text-xs text-destructive break-words">{sendError}</p>}
       <div className="shrink-0 border-t border-border p-3 flex items-center gap-2">
         <input
           value={draft}
@@ -109,7 +125,7 @@ export function ChatPanel({
         />
         <Button
           onClick={send}
-          disabled={!draft.trim() || !thread}
+          disabled={!draft.trim() || !thread || sending}
           aria-label="Enviar mensagem"
           className="h-11 w-11 shrink-0 grid place-items-center rounded-full bg-primary text-primary-foreground hover:opacity-90 transition"
         >

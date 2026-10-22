@@ -99,7 +99,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { user: authUser } } = await supabase.auth.getUser();
     if (!authUser) return;
     const { error } = await supabase.from("profiles").update({ nickname: next.nickname, avatar: next.avatar }).eq("id", authUser.id);
-    if (!error) setUser(next);
+    if (error) throw error;
+    setUser(next);
   };
   const resetPassword: AuthCtx["resetPassword"] = async (email) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase());
