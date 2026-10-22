@@ -97,7 +97,8 @@ function Home() {
       </section>
 
       {/* Categorias produtos */}
-      <section className="container-tk pt-14 pb-20">
+      <section className="container-tk relative isolate pt-14 pb-20">
+        <div aria-hidden="true" className="pointer-events-none absolute -z-10 left-1/2 top-24 h-64 w-64 -translate-x-1/2 rounded-full bg-red-600/25 blur-[100px] sm:h-80 sm:w-80" />
         <SectionTitle title="Categorias do catálogo" subtitle="Produtos populares" />
         <CategoryTabs />
         {loading ? (
