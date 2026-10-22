@@ -105,9 +105,28 @@ alter table public.chat_messages enable row level security;
 drop policy if exists "Users read own profile or admins read all" on public.profiles;
 create policy "Users read own profile or admins read all" on public.profiles
 for select to authenticated using (id = (select auth.uid()) or (select public.is_admin()));
+create or replace function public.protect_profile_role()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $
+begin
+  if new.role is distinct from old.role and not (select public.is_admin()) then
+    raise exception 'Only administrators can change profile roles';
+  end if;
+  new.updated_at = now();
+  return new;
+end;
+$;
+drop trigger if exists protect_profile_role_trigger on public.profiles;
+create trigger protect_profile_role_trigger before update on public.profiles
+for each row execute procedure public.protect_profile_role();
+
 drop policy if exists "Users update own profile" on public.profiles;
 create policy "Users update own profile" on public.profiles
-for update to authenticated using (id = (select auth.uid())) with check (id = (select auth.uid()) and role = (select role from public.profiles p where p.id = (select auth.uid())));
+for update to authenticated using (id = (select auth.uid()) or (select public.is_admin()))
+with check (id = (select auth.uid()) or (select public.is_admin()));
 drop policy if exists "Users insert own orders" on public.orders;
 create policy "Users insert own orders" on public.orders
 for insert to authenticated with check (user_id = (select auth.uid()));
