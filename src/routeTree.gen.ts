@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as ComoFuncionaRouteImport } from './routes/como-funciona'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as MinhasComprasRouteImport } from './routes/minhas-compras'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as Ps4RouteImport } from './routes/ps4'
 import { Route as Ps5RouteImport } from './routes/ps5'
@@ -47,6 +48,11 @@ const ComoFuncionaRoute = ComoFuncionaRouteImport.update({
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MinhasComprasRoute = MinhasComprasRouteImport.update({
+  id: '/minhas-compras',
+  path: '/minhas-compras',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilRoute = PerfilRouteImport.update({
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/carrinho': typeof CarrinhoRoute
   '/como-funciona': typeof ComoFuncionaRoute
   '/faq': typeof FaqRoute
+  '/minhas-compras': typeof MinhasComprasRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
   '/ps5': typeof Ps5Route
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/carrinho': typeof CarrinhoRoute
   '/como-funciona': typeof ComoFuncionaRoute
   '/faq': typeof FaqRoute
+  '/minhas-compras': typeof MinhasComprasRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
   '/ps5': typeof Ps5Route
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/carrinho': typeof CarrinhoRoute
   '/como-funciona': typeof ComoFuncionaRoute
   '/faq': typeof FaqRoute
+  '/minhas-compras': typeof MinhasComprasRoute
   '/perfil': typeof PerfilRoute
   '/ps4': typeof Ps4Route
   '/ps5': typeof Ps5Route
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/carrinho'
     | '/como-funciona'
     | '/faq'
+    | '/minhas-compras'
     | '/perfil'
     | '/ps4'
     | '/ps5'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/carrinho'
     | '/como-funciona'
     | '/faq'
+    | '/minhas-compras'
     | '/perfil'
     | '/ps4'
     | '/ps5'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/carrinho'
     | '/como-funciona'
     | '/faq'
+    | '/minhas-compras'
     | '/perfil'
     | '/ps4'
     | '/ps5'
@@ -201,6 +213,7 @@ export interface RootRouteChildren {
   CarrinhoRoute: typeof CarrinhoRoute
   ComoFuncionaRoute: typeof ComoFuncionaRoute
   FaqRoute: typeof FaqRoute
+  MinhasComprasRoute: typeof MinhasComprasRoute
   PerfilRoute: typeof PerfilRoute
   Ps4Route: typeof Ps4Route
   Ps5Route: typeof Ps5Route
@@ -247,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/minhas-compras': {
+      id: '/minhas-compras'
+      path: '/minhas-compras'
+      fullPath: '/minhas-compras'
+      preLoaderRoute: typeof MinhasComprasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil': {
@@ -321,6 +341,7 @@ const rootRouteChildren: RootRouteChildren = {
   CarrinhoRoute: CarrinhoRoute,
   ComoFuncionaRoute: ComoFuncionaRoute,
   FaqRoute: FaqRoute,
+  MinhasComprasRoute: MinhasComprasRoute,
   PerfilRoute: PerfilRoute,
   Ps4Route: Ps4Route,
   Ps5Route: Ps5Route,
