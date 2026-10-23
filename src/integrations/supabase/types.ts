@@ -14,6 +14,163 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_messages: {
+        Row: {
+          author: string
+          body: string
+          created_at: string
+          id: string
+          sender_id: string
+          sender_role: string
+          thread_id: string
+        }
+        Insert: {
+          author?: string
+          body: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          sender_role: string
+          thread_id: string
+        }
+        Update: {
+          author?: string
+          body?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          sender_role?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_threads: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          order_id: string | null
+          owner_email: string
+          owner_id: string
+          owner_name: string
+          unread_for_admin: number
+          unread_for_user: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          order_id?: string | null
+          owner_email: string
+          owner_id: string
+          owner_name?: string
+          unread_for_admin?: number
+          unread_for_user?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          order_id?: string | null
+          owner_email?: string
+          owner_id?: string
+          owner_name?: string
+          unread_for_admin?: number
+          unread_for_user?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_threads_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          buyer_email: string
+          buyer_nickname: string
+          comprovante: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          items: Json
+          observacao: string | null
+          status: string
+          total: number
+          user_id: string
+        }
+        Insert: {
+          buyer_email: string
+          buyer_nickname?: string
+          comprovante?: string | null
+          created_at?: string
+          expires_at: string
+          id: string
+          items?: Json
+          observacao?: string | null
+          status?: string
+          total: number
+          user_id: string
+        }
+        Update: {
+          buyer_email?: string
+          buyer_nickname?: string
+          comprovante?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          items?: Json
+          observacao?: string | null
+          status?: string
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar: string
+          created_at: string
+          email: string
+          id: string
+          nickname: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          avatar?: string
+          created_at?: string
+          email: string
+          id: string
+          nickname?: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar?: string
+          created_at?: string
+          email?: string
+          id?: string
+          nickname?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           author_email: string
@@ -47,12 +204,101 @@ export type Database = {
         }
         Relationships: []
       }
+      tokyobs_chats: {
+        Row: {
+          id: string
+          kind: string
+          messages: Json
+          order_id: string | null
+          owner_email: string
+          owner_name: string
+          unread_for_admin: number
+          unread_for_user: number
+          updated_at: number
+        }
+        Insert: {
+          id: string
+          kind: string
+          messages?: Json
+          order_id?: string | null
+          owner_email: string
+          owner_name: string
+          unread_for_admin?: number
+          unread_for_user?: number
+          updated_at: number
+        }
+        Update: {
+          id?: string
+          kind?: string
+          messages?: Json
+          order_id?: string | null
+          owner_email?: string
+          owner_name?: string
+          unread_for_admin?: number
+          unread_for_user?: number
+          updated_at?: number
+        }
+        Relationships: []
+      }
+      tokyobs_orders: {
+        Row: {
+          buyer_email: string
+          buyer_nickname: string
+          comprovante: string | null
+          created_at: number
+          expires_at: number
+          id: string
+          items: Json
+          observacao: string | null
+          status: string
+          total: number
+        }
+        Insert: {
+          buyer_email: string
+          buyer_nickname: string
+          comprovante?: string | null
+          created_at: number
+          expires_at: number
+          id: string
+          items?: Json
+          observacao?: string | null
+          status?: string
+          total?: number
+        }
+        Update: {
+          buyer_email?: string
+          buyer_nickname?: string
+          comprovante?: string | null
+          created_at?: number
+          expires_at?: number
+          id?: string
+          items?: Json
+          observacao?: string | null
+          status?: string
+          total?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: never; Returns: boolean }
+      mark_chat_read: { Args: { p_thread_id: string }; Returns: undefined }
+      send_chat_message: {
+        Args: { p_author?: string; p_body: string; p_thread_id: string }
+        Returns: undefined
+      }
+      submit_order_payment: {
+        Args: {
+          p_comprovante?: string
+          p_expire?: boolean
+          p_observacao?: string
+          p_order_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
