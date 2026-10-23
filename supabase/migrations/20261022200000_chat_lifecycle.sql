@@ -13,6 +13,11 @@ where last_message_at is null;
 create index if not exists chat_threads_status_last_message_idx
   on public.chat_threads(status, last_message_at desc);
 
+-- Allow a new conversation after a previous order chat was closed, while retaining history.
+drop index if exists public.chat_order_unique;
+create unique index if not exists chat_order_open_unique
+  on public.chat_threads(order_id) where kind = 'order' and status = 'aberto';
+
 -- Keep last_message_at in sync and automatically close after 48h without a customer reply.
 create or replace function public.sync_chat_thread_activity()
 returns trigger language plpgsql security definer set search_path = '' as $$
@@ -20,12 +25,7 @@ begin
   update public.chat_threads
   set last_message_at = new.created_at,
       updated_at = new.created_at,
-      status = case
-        when new.sender_role = 'user' then 'aberto'
-        else status
-      end,
-      closed_at = case when new.sender_role = 'user' then null else closed_at end,
-      closed_by = case when new.sender_role = 'user' then null else closed_by end
+      status = status
   where id = new.thread_id;
   return new;
 end;
