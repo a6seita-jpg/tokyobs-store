@@ -3,9 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 export type ChatMessage = { id: string; from: "user" | "admin"; author: string; text: string; at: number };
 export type ChatThread = {
   id: string; kind: "support" | "order"; ownerEmail: string; ownerName: string;
-  orderId?: string; messages: ChatMessage[]; unreadForAdmin: number; unreadForUser: number; updatedAt: number;
+  orderId?: string; status: "aberto" | "fechado" | "arquivado"; closedAt?: number; lastMessageAt: number; messages: ChatMessage[]; unreadForAdmin: number; unreadForUser: number; updatedAt: number;
 };
-type DbThread = { id: string; kind: "support" | "order"; owner_id: string; owner_email: string; owner_name: string; order_id: string | null; unread_for_admin: number; unread_for_user: number; updated_at: string };
+type DbThread = { id: string; kind: "support" | "order"; owner_id: string; owner_email: string; owner_name: string; order_id: string | null; unread_for_admin: number; unread_for_user: number; updated_at: string; status: "aberto" | "fechado" | "arquivado"; closed_at: string | null; last_message_at: string | null };
 type DbMessage = { id: string; sender_role: "user" | "admin"; author: string; body: string; created_at: string };
 const mapMessage = (m: DbMessage): ChatMessage => ({ id: m.id, from: m.sender_role, author: m.author, text: m.body, at: new Date(m.created_at).getTime() });
 async function withMessages(row: DbThread): Promise<ChatThread> {
@@ -13,11 +13,11 @@ async function withMessages(row: DbThread): Promise<ChatThread> {
   if (error) throw error;
   return {
     id: row.id, kind: row.kind, ownerEmail: row.owner_email, ownerName: row.owner_name,
-    orderId: row.order_id ?? undefined, messages: ((data ?? []) as unknown as DbMessage[]).map(mapMessage),
+    orderId: row.order_id ?? undefined, status: row.status ?? "aberto", closedAt: row.closed_at ? new Date(row.closed_at).getTime() : undefined, lastMessageAt: new Date(row.last_message_at ?? row.updated_at).getTime(), messages: ((data ?? []) as unknown as DbMessage[]).map(mapMessage),
     unreadForAdmin: row.unread_for_admin, unreadForUser: row.unread_for_user, updatedAt: new Date(row.updated_at).getTime(),
   };
 }
-const threadCols = "id,kind,owner_id,owner_email,owner_name,order_id,unread_for_admin,unread_for_user,updated_at";
+const threadCols = "id,kind,owner_id,owner_email,owner_name,order_id,unread_for_admin,unread_for_user,updated_at,status,closed_at,last_message_at";
 const chatChanged = "tokyobs-chat-changed";
 function notifyChat() { window.dispatchEvent(new Event(chatChanged)); }
 export function subscribeChat(cb: () => void): () => void {
@@ -101,4 +101,27 @@ export async function unreadForAdmin(): Promise<number> {
   const { data, error } = await supabase.from("chat_threads").select("unread_for_admin");
   if (error) throw error;
   return (data ?? []).reduce((sum, row) => sum + Number((row as { unread_for_admin: number }).unread_for_admin), 0);
+}
+
+export async function closeChat(threadId: string): Promise<void> {
+  const { error } = await supabase.rpc("admin_close_chat", { p_thread_id: threadId });
+  if (error) throw error;
+  notifyChat();
+}
+export async function archiveChat(threadId: string): Promise<void> {
+  const { error } = await supabase.rpc("admin_archive_chat", { p_thread_id: threadId });
+  if (error) throw error;
+  notifyChat();
+}
+export async function closeInactiveChats(): Promise<number> {
+  const { data, error } = await supabase.rpc("admin_close_inactive_chats");
+  if (error) throw error;
+  notifyChat();
+  return Number(data ?? 0);
+}
+export async function reopenOrderChat(orderId: string, ownerName = ""): Promise<string> {
+  const { data, error } = await supabase.rpc("customer_reopen_order_chat", { p_order_id: orderId, p_owner_name: ownerName });
+  if (error) throw error;
+  notifyChat();
+  return String(data);
 }
