@@ -19,7 +19,7 @@ export function AdminChats({ authorName }: { authorName: string }) {
     return () => { active = false; unsubscribe(); };
   }, []);
   const visible = threads.filter(t => (filter === "all" || t.kind === filter) && (statusFilter === "todos" || t.status === statusFilter) && `${t.ownerName} ${t.ownerEmail} ${t.orderId ?? ""} ${t.messages.at(-1)?.text ?? ""}`.toLowerCase().includes(search.toLowerCase()));
-  const runAction = async (action: () => Promise<unknown>, success: string) => { try { await action(); setThreads(await listThreads()); setLoadError(""); } catch (e) { setLoadError(e instanceof Error ? e.message : success); } };
+  const runAction = async (action: () => Promise<unknown>, success: string) => { try { await action(); setThreads(await listThreads()); } catch (e) { setLoadError(e instanceof Error ? e.message : success); } };
   const thread = threads.find(t => t.id === selected);
   const openCount = threads.filter(t => t.status === "aberto").length;
   const closedCount = threads.filter(t => t.status === "fechado" || t.status === "arquivado").length;
