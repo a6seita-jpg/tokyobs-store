@@ -27,6 +27,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Steam, PS4, Epic Games, Netflix, YouTube, Redes Sociais e muito mais. Preço justo, entrega rápida, suporte 24h." },
       { property: "og:title", content: "TOKYOBS" },
       { property: "og:description", content: "Sua loja gamer & streaming." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Home,
