@@ -110,10 +110,10 @@ function Home() {
           </div>
         ) : (
           <div className="featured-marquee mt-5" onMouseEnter={e=>e.currentTarget.classList.add("paused")} onMouseLeave={e=>e.currentTarget.classList.remove("paused")}><div className="featured-marquee-track">
-            {FEATURED.map((p) => (
-              <FeaturedCard key={p.id} item={p} />
+            {[...FEATURED, ...FEATURED].map((p, i) => (
+              <div key={`${p.id}-${i}`} className="featured-marquee-item"><FeaturedCard item={p} /></div>
             ))}
-          </div>
+          </div></div>
         )}
       </section>
 
