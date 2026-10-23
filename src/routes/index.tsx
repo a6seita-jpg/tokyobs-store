@@ -109,7 +109,7 @@ function Home() {
             <GridSkeleton count={8} />
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mt-5">
+          <div className="featured-marquee mt-5" onMouseEnter={e=>e.currentTarget.classList.add("paused")} onMouseLeave={e=>e.currentTarget.classList.remove("paused")}><div className="featured-marquee-track">
             {FEATURED.map((p) => (
               <FeaturedCard key={p.id} item={p} />
             ))}
@@ -186,24 +186,24 @@ function CategoryTabs() {
 
 function FeaturedCard({ item }: { item: Featured }) {
   const { avg, count } = useReviewStats(item.id);
-  const off = Math.round(((item.oldPrice - item.price) / item.oldPrice) * 100);
+  const off = Math.round(((item.oldPrice - item.price) / item.oldPrice) * 100);\n  const themeColor = item.category === "Steam" ? "#1B74E4" : item.title.toLowerCase().includes("netflix") ? "#E50914" : item.title.toLowerCase().includes("spotify") ? "#1ED760" : item.title.toLowerCase().includes("prime") ? "#00A8E1" : item.title.toLowerCase().includes("crunchyroll") ? "#FF7A00" : "#C41E3A";
   const fmt = (n: number) => `R$ ${n.toFixed(2).replace(".", ",")}`;
   return (
     <Link
       to={item.to as never}
-      className="group relative flex flex-col rounded-xl overflow-hidden border transition-all duration-300 hover:-translate-y-1"
+      className="group relative isolate flex flex-col rounded-xl overflow-hidden border border-white/10 bg-[#0A0A0A] text-white transition-all duration-300 hover:-translate-y-1"
       style={{
         background: "#0a0a0a",
         borderColor: "#1f1f1f",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = "0 0 0 1px #e63946, 0 10px 30px rgba(230,57,70,0.35)";
+        e.currentTarget.style.boxShadow = `0 0 0 1px ${themeColor}, 0 10px 35px ${themeColor}55`;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.boxShadow = "";
       }}
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden">\n        <div aria-hidden="true" className="pointer-events-none absolute -inset-16 z-0 rounded-full blur-[80px] opacity-40 transition-all duration-500 group-hover:opacity-60 group-hover:blur-[100px]" style={{backgroundColor:themeColor}} />
         <img
           src={item.image}
           alt={item.title}
