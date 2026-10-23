@@ -204,7 +204,8 @@ function FeaturedCard({ item }: { item: Featured }) {
         e.currentTarget.style.boxShadow = "";
       }}
     >
-      <div className="relative aspect-[4/3] overflow-hidden">\n        <div aria-hidden="true" className="pointer-events-none absolute -inset-16 z-0 rounded-full blur-[80px] opacity-40 transition-all duration-500 group-hover:opacity-60 group-hover:blur-[100px]" style={{backgroundColor:themeColor}} />
+      <div className="relative aspect-[4/3] overflow-hidden">
+        <div aria-hidden="true" className="pointer-events-none absolute -inset-16 z-0 rounded-full blur-[80px] opacity-40 transition-all duration-500 group-hover:opacity-60 group-hover:blur-[100px]" style={{backgroundColor:themeColor}} />
         <img
           src={item.image}
           alt={item.title}
