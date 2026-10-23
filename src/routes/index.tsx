@@ -9,6 +9,7 @@ import { FaqSection } from "@/components/FaqSection";
 import { GridSkeleton } from "@/components/Skeleton";
 import { StarSummary } from "@/components/StarRating";
 import { useReviewStats } from "@/hooks/useReviews";
+import { SocialProofDemo } from "@/components/SocialProofDemo";
 
 import catPs4 from "@/assets/banners/ps4.jpg";
 import catEpic from "@/assets/banners/epic.jpg";
@@ -115,6 +116,8 @@ function Home() {
           </div>
         )}
       </section>
+
+      <SocialProofDemo />
 
       <FaqSection />
     </main>

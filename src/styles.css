@@ -46,25 +46,25 @@
 :root {
   --radius: 0.5rem;
 
-  /* Light = washi paper */
-  --background: #FAFAFA;
-  --foreground: #0A0A0A;
-  --card: #FFFFFF;
-  --card-foreground: #0A0A0A;
-  --popover: #FFFFFF;
-  --popover-foreground: #0A0A0A;
+  /* TOKYOBS is always dark; system light preference must not change contrast. */
+  --background: #0A0A0A;
+  --foreground: #FAFAFA;
+  --card: #141414;
+  --card-foreground: #FAFAFA;
+  --popover: #141414;
+  --popover-foreground: #FAFAFA;
   --primary: #C41E3A;
   --primary-foreground: #FAFAFA;
-  --secondary: #F1EFEB;
-  --secondary-foreground: #0A0A0A;
-  --muted: #F1EFEB;
-  --muted-foreground: #6B6B6B;
+  --secondary: #1A1A1A;
+  --secondary-foreground: #FAFAFA;
+  --muted: #1A1A1A;
+  --muted-foreground: #9A9A9A;
   --accent: #C41E3A;
   --accent-foreground: #FAFAFA;
   --destructive: #C41E3A;
   --destructive-foreground: #FAFAFA;
-  --border: rgba(10, 10, 10, 0.08);
-  --input: rgba(10, 10, 10, 0.12);
+  --border: rgba(250, 250, 250, 0.08);
+  --input: rgba(250, 250, 250, 0.14);
   --ring: #C41E3A;
 
   --vermilion: #C41E3A;
