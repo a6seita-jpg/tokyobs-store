@@ -289,3 +289,13 @@
   font-size: 0.95rem;
   line-height: 1;
 }
+
+
+/* Infinite featured carousel: pause on hover/focus, and honor reduced motion. */
+.featured-marquee { overflow: hidden; width: 100%; }
+.featured-marquee-track { display: flex; width: max-content; gap: .75rem; animation: tk-featured-scroll 42s linear infinite; }
+.featured-marquee.paused .featured-marquee-track,
+.featured-marquee:focus-within .featured-marquee-track { animation-play-state: paused; }
+.featured-marquee-item { width: min(76vw, 260px); flex: 0 0 auto; }
+@keyframes tk-featured-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .featured-marquee-track { animation: none; } }
