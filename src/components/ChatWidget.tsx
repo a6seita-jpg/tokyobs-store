@@ -24,13 +24,13 @@ export function ChatWidget() {
   const name = user?.nickname ?? "Convidado";
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !user) { setUnread(0); return; }
     let active = true;
     const update = async () => { try { const n = await unreadForUser(email); if (active) setUnread(n); } catch { if (active) setUnread(0); } };
     void update();
     const unsubscribe = subscribeChat(() => { void update(); });
     return () => { active = false; unsubscribe(); };
-  }, [hydrated, email]);
+  }, [hydrated, email, user?.email]);
 
   useEffect(() => {
     if (!hydrated || !open) { setThreadId(null); setChatError(""); return; }
@@ -42,7 +42,7 @@ export function ChatWidget() {
       .then((thread) => { if (active) setThreadId(thread.id); })
       .catch((error: unknown) => { if (active) { setThreadId(null); setChatError(error instanceof Error ? error.message : "Não foi possível abrir o chat."); } });
     return () => { active = false; };
-  }, [hydrated, open, target, email, name, user, openLogin, close, retryKey]);
+  }, [hydrated, open, target.kind, target.kind === "order" ? target.orderId : undefined, email, name, !!user, retryKey]);
 
   if (!hydrated) return null;
 

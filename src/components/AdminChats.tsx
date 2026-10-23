@@ -9,9 +9,10 @@ export function AdminChats({ authorName }: { authorName: string }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "support" | "order">("all");
   const [search, setSearch] = useState("");
+  const [loadError, setLoadError] = useState("");
   useEffect(() => {
     let active = true;
-    const update = async () => { try { const rows = await listThreads(); if (active) setThreads(rows); } catch { if (active) setThreads([]); } };
+    const update = async () => { try { const rows = await listThreads(); if (active) { setThreads(rows); setLoadError(""); } } catch { if (active) setLoadError("Não foi possível carregar as conversas. Tentando novamente automaticamente."); } };
     void update();
     const unsubscribe = subscribeChat(() => { void update(); });
     return () => { active = false; unsubscribe(); };
@@ -25,7 +26,8 @@ export function AdminChats({ authorName }: { authorName: string }) {
         <div className="flex gap-1" role="group" aria-label="Tipo de conversa">{(["all", "support", "order"] as const).map(f => <Button key={f} size="sm" variant={filter === f ? "default" : "ghost"} aria-pressed={filter === f} onClick={() => setFilter(f)}>{f === "all" ? "Todas" : f === "support" ? "Suporte" : "Pedidos"}</Button>)}</div>
       </div>
       <div className="max-h-[240px] md:max-h-[540px] overflow-y-auto">
-        {visible.length === 0 && <p className="p-6 text-sm text-muted-foreground">Nenhuma conversa encontrada.</p>}
+        {loadError && <p role="alert" className="p-4 text-sm text-destructive">{loadError}</p>}
+        {!loadError && visible.length === 0 && <p className="p-6 text-sm text-muted-foreground">Nenhuma conversa encontrada.</p>}
         {visible.map(t => <Button key={t.id} variant="ghost" onClick={() => setSelected(t.id)} aria-pressed={selected === t.id} className={`h-auto w-full justify-start rounded-none border-b border-border p-4 whitespace-normal text-left hover:bg-muted hover:text-foreground ${selected === t.id ? "bg-muted border-l-2 border-l-primary" : ""}`}>
           <span className="text-primary shrink-0">{t.kind === "order" ? <Package/> : <Headphones/>}</span>
           <span className="flex-1 min-w-0"><span className="block text-sm truncate">{t.ownerName}</span><span className="block text-[11px] text-muted-foreground truncate">{t.kind === "order" ? `Pedido ${t.orderId}` : t.ownerEmail}</span><span className="block text-xs text-muted-foreground truncate mt-1">{t.messages.at(-1)?.text ?? "Conversa iniciada"}</span></span>

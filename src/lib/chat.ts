@@ -18,12 +18,25 @@ async function withMessages(row: DbThread): Promise<ChatThread> {
   };
 }
 const threadCols = "id,kind,owner_id,owner_email,owner_name,order_id,unread_for_admin,unread_for_user,updated_at";
+const chatChanged = "tokyobs-chat-changed";
+function notifyChat() { window.dispatchEvent(new Event(chatChanged)); }
 export function subscribeChat(cb: () => void): () => void {
-  const channel = supabase.channel("tokyobs-chat-sync")
+  // Each mounted consumer needs its own channel: Supabase reuses identical topics.
+  const channel = supabase.channel(`tokyobs-chat-sync:${crypto.randomUUID()}`)
     .on("postgres_changes", { event: "*", schema: "public", table: "chat_threads" }, cb)
     .on("postgres_changes", { event: "*", schema: "public", table: "chat_messages" }, cb)
     .subscribe();
-  return () => { void supabase.removeChannel(channel); };
+  window.addEventListener(chatChanged, cb);
+  // Recover missed events after reconnects and when Realtime is unavailable.
+  const refresh = () => { if (document.visibilityState === "visible") cb(); };
+  const timer = window.setInterval(refresh, 15000);
+  window.addEventListener("focus", refresh);
+  return () => {
+    window.removeEventListener(chatChanged, cb);
+    window.removeEventListener("focus", refresh);
+    window.clearInterval(timer);
+    void supabase.removeChannel(channel);
+  };
 }
 export async function getThread(id: string): Promise<ChatThread | null> {
   const { data, error } = await supabase.from("chat_threads").select(threadCols).eq("id", id).maybeSingle();
@@ -53,7 +66,16 @@ export async function getOrCreateThread(input: { kind: "support" | "order"; owne
     kind: input.kind, owner_id: user.id, owner_email: user.email ?? input.ownerEmail,
     owner_name: input.ownerName, order_id: input.kind === "order" ? input.orderId : null,
   }).select(threadCols).single();
-  if (insertError) throw insertError;
+  if (insertError) {
+    // Another tab or overlapping effect may have created this unique thread.
+    if (insertError.code === "23505") {
+      const { data: existing, error: lookupError } = await query.maybeSingle();
+      if (lookupError) throw lookupError;
+      if (existing) return withMessages(existing as unknown as DbThread);
+    }
+    throw insertError;
+  }
+  notifyChat();
   return withMessages(row as unknown as DbThread);
 }
 export async function sendMessage(threadId: string, from: "user" | "admin", author: string, text: string): Promise<ChatThread | null> {
@@ -61,6 +83,7 @@ export async function sendMessage(threadId: string, from: "user" | "admin", auth
   if (!clean) return null;
   const { error } = await supabase.rpc("send_chat_message", { p_thread_id: threadId, p_body: clean, p_author: author });
   if (error) throw error;
+  notifyChat();
   return getThread(threadId);
 }
 export async function markRead(threadId: string, _side: "user" | "admin"): Promise<void> {
@@ -68,7 +91,9 @@ export async function markRead(threadId: string, _side: "user" | "admin"): Promi
   if (error) throw error;
 }
 export async function unreadForUser(_email: string): Promise<number> {
-  const { data, error } = await supabase.from("chat_threads").select("unread_for_user");
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return 0;
+  const { data, error } = await supabase.from("chat_threads").select("unread_for_user").eq("owner_id", user.id);
   if (error) throw error;
   return (data ?? []).reduce((sum, row) => sum + Number((row as { unread_for_user: number }).unread_for_user), 0);
 }

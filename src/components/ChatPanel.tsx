@@ -15,7 +15,7 @@ function fmtTime(at: number) {
 
 /**
  * Painel de conversa reutilizável: lado do cliente (side="user") ou do admin.
- * Lê/grava no localStorage via src/lib/chat.ts e reage a mudanças em tempo real.
+ * Lê/grava no banco via src/lib/chat.ts e reage a mudanças em tempo real.
  */
 export function ChatPanel({
   threadId,
@@ -38,17 +38,25 @@ export function ChatPanel({
 
   useEffect(() => {
     let active = true;
+    let refreshing = false;
+    let pending = false;
     const refresh = async () => {
+      if (refreshing) { pending = true; return; }
+      refreshing = true;
       try {
         // Falha ao marcar como lida não deve impedir o carregamento das mensagens.
         try { await markRead(threadId, side); } catch (readError) { console.warn("Não foi possível marcar o chat como lido:", readError); }
         const value = await getThread(threadId);
+        if (!value) throw new Error("Conversa não encontrada ou acesso não autorizado.");
         if (active) { setThread(value); setLoadError(""); onOpen?.(value); }
       } catch (error) {
         if (active) {
           setThread(null);
           setLoadError(error instanceof Error ? error.message : "Falha ao carregar mensagens.");
         }
+      } finally {
+        refreshing = false;
+        if (active && pending) { pending = false; void refresh(); }
       }
     };
     void refresh();
@@ -122,6 +130,7 @@ export function ChatPanel({
           }}
           placeholder="Escreva sua mensagem..."
           aria-label="Mensagem"
+          maxLength={5000}
           className="flex-1 h-11 px-4 rounded-full border border-input bg-background text-sm outline-none focus:border-primary"
         />
         <Button
