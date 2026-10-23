@@ -117,8 +117,9 @@ export function ChatPanel({
         })}
       </div>
 
+      {thread && thread.status !== "aberto" && <p role="status" className="mx-3 my-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">Este chat está {thread.status}. Não é possível enviar mensagens nesta conversa.</p>}
       {sendError && <p role="alert" className="px-3 pt-2 text-xs text-destructive break-words">{sendError}</p>}
-      <div className="shrink-0 border-t border-border p-3 flex items-center gap-2">
+      {(!thread || thread.status === "aberto") && <div className="shrink-0 border-t border-border p-3 flex items-center gap-2">
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -141,7 +142,7 @@ export function ChatPanel({
         >
           <Send className="h-4 w-4" />
         </Button>
-      </div>
+      </div>}
     </div>
   );
 }
