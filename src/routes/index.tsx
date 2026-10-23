@@ -109,11 +109,19 @@ function Home() {
             <GridSkeleton count={8} />
           </div>
         ) : (
-          <div className="featured-marquee mt-5" onMouseEnter={e=>e.currentTarget.classList.add("paused")} onMouseLeave={e=>e.currentTarget.classList.remove("paused")}><div className="featured-marquee-track">
-            {[...FEATURED, ...FEATURED].map((p, i) => (
-              <div key={`${p.id}-${i}`} className="featured-marquee-item"><FeaturedCard item={p} /></div>
-            ))}
-          </div></div>
+          <div
+            className="featured-marquee mt-5"
+            onMouseEnter={(event) => event.currentTarget.classList.add("paused")}
+            onMouseLeave={(event) => event.currentTarget.classList.remove("paused")}
+          >
+            <div className="featured-marquee-track">
+              {FEATURED.concat(FEATURED).map((product, index) => (
+                <div key={String(product.id) + "-" + index} className="featured-marquee-item">
+                  <FeaturedCard item={product} />
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </section>
 
