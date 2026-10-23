@@ -9,6 +9,10 @@ export const Route = createFileRoute("/perfil")({
     meta: [
       { title: "Meu perfil — TOKYOBS" },
       { name: "description", content: "Edite seu nickname e foto de perfil TOKYOBS." },
+      { property: "og:title", content: "Meu perfil — TOKYOBS" },
+      { property: "og:description", content: "Edite seu nickname e foto de perfil TOKYOBS." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: PerfilPage,

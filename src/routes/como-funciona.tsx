@@ -9,6 +9,8 @@ export const Route = createFileRoute("/como-funciona")({
       { name: "description", content: "Em 3 passos: busque, consulte e receba seu produto em até 15 minutos." },
       { property: "og:title", content: "Como funciona — TOKYOBS" },
       { property: "og:description", content: "Busque, pague com Pix e receba em 15min." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ComoFuncionaPage,
