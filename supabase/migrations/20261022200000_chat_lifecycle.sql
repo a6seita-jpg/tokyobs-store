@@ -52,7 +52,7 @@ create or replace function public.send_chat_message(
   p_body text,
   p_author text default ''
 ) returns void
-language plpgsql security definer set search_path = '' as $
+language plpgsql security definer set search_path = '' as $ 
 declare v_role text; v_owner uuid;
 begin
   if auth.uid() is null then raise exception 'Authentication required'; end if;
