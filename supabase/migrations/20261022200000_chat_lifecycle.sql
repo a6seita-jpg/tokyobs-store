@@ -13,6 +13,18 @@ where last_message_at is null;
 create index if not exists chat_threads_status_last_message_idx
   on public.chat_threads(status, last_message_at desc);
 
+-- Resolve legacy duplicate open order threads before adding the partial unique index.
+-- Keep the most recently updated thread open and preserve older threads as history.
+with ranked as (
+  select id, row_number() over (partition by order_id order by updated_at desc, created_at desc, id desc) as rn
+  from public.chat_threads
+  where kind = 'order' and status = 'aberto' and order_id is not null
+)
+update public.chat_threads t
+set status = 'fechado', closed_at = coalesce(t.closed_at, now()), updated_at = now()
+from ranked r
+where t.id = r.id and r.rn > 1;
+
 -- Allow a new conversation after a previous order chat was closed, while retaining history.
 drop index if exists public.chat_order_unique;
 create unique index if not exists chat_order_open_unique
