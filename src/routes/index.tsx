@@ -187,8 +187,13 @@ function CategoryTabs() {
 function FeaturedCard({ item }: { item: Featured }) {
   const { avg, count } = useReviewStats(item.id);
   const off = Math.round(((item.oldPrice - item.price) / item.oldPrice) * 100);
-  const titleLower = item.title.toLowerCase();
-  const themeColor = item.category === "Steam" ? "#1B74E4" : titleLower.includes("netflix") ? "#E50914" : titleLower.includes("spotify") ? "#1ED760" : titleLower.includes("prime") ? "#00A8E1" : titleLower.includes("crunchyroll") ? "#FF7A00" : "#C41E3A";
+  const titleLower = String(item.title).toLowerCase();
+  let themeColor = "#C41E3A";
+  if (item.category === "Steam") themeColor = "#1B74E4";
+  else if (titleLower.includes("netflix")) themeColor = "#E50914";
+  else if (titleLower.includes("spotify")) themeColor = "#1ED760";
+  else if (titleLower.includes("prime")) themeColor = "#00A8E1";
+  else if (titleLower.includes("crunchyroll")) themeColor = "#FF7A00";
   const fmt = (n: number) => `R$ ${n.toFixed(2).replace(".", ",")}`;
   return (
     <Link
