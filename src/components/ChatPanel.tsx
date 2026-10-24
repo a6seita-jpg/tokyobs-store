@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Send } from "lucide-react";
+import { Bot, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   getThread,
@@ -35,6 +35,16 @@ export function ChatPanel({
   const [sendError, setSendError] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const quickReplies = [
+    { label: "Boas-vindas", text: "Olá! 👋 Seja bem-vindo(a) à TOKYOBS! Me diga qual produto você procura que vou te ajudar." },
+    { label: "Vendas / catálogo", text: "Claro! 😊 Me diga qual serviço ou produto você deseja e, se puder, o plano/período. Vou conferir as opções e te passar os valores disponíveis." },
+    { label: "Pagamento", text: "Assim que o pagamento for confirmado, seguimos com o processamento do pedido. Se já pagou, envie o número do pedido para eu conferir." },
+    { label: "Pedido recebido", text: "Recebi sua mensagem e vou conferir seu pedido. A entrega pode sair em cerca de 10 minutos, mas o prazo varia conforme o produto e a disponibilidade e pode levar até 24 horas. Vou te atualizando por aqui." },
+    { label: "Suporte", text: "Vamos resolver isso! 🛠️ Me envie o número do pedido e explique o que aconteceu. Se houver erro, mande uma captura de tela sem expor senhas ou dados de pagamento completos." },
+    { label: "Aguardando análise", text: "Estou acompanhando sua solicitação. Posso demorar um pouco para responder porque estou verificando os detalhes, mas sua mensagem ficou registrada. O prazo depende do produto e pode chegar a até 24 horas." },
+    { label: "Fora do momento", text: "Olá! Sua mensagem chegou. Eu acompanho os atendimentos ao longo do dia, mas posso levar um tempo para responder. A entrega pode levar cerca de 10 minutos ou até 24 horas, dependendo do produto e da disponibilidade." },
+    { label: "Finalização", text: "Pronto! ✅ Confira se recebeu tudo e me avise por aqui se precisar de ajuda. Obrigado por comprar na TOKYOBS!" },
+  ];
 
   useEffect(() => {
     let active = true;
