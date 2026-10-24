@@ -43,7 +43,7 @@ function PurchasesPage() {
     void refresh();
     const unsubscribe = subscribeChat(() => { void refresh(); });
     return unsubscribe;
-  }, [hydrated, user?.id]);
+  }, [hydrated, user?.email]);
 
   const openOrReopen = async (order: Order) => {
     setBusyOrder(order.id);
